@@ -1,0 +1,22 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "pixelmatch_tests",
+      "program": "${workspaceFolder}/bazel-bin/tests/pixelmatch_tests",
+      "args": [
+        "--gtest_break_on_failure",
+      ],
+      "cwd": "${workspaceFolder}",
+      "sourceMap": {
+        "/proc/self/cwd": "${workspaceFolder}"
+      },
+      "preLaunchTask": "build all (debug)"
+    },
+  ],
+}

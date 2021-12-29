@@ -1,0 +1,17 @@
+build --enable_platform_specific_config
+
+# Build with C++20, and enable absl for gtest to have stack traces.
+build --cxxopt=-std=c++20 --define absl=1
+
+# Fixes symbols when debugging on mac.
+build:macos --features=oso_prefix_is_pwd
+
+# Basic ASAN/UBSAN that works for gcc
+build:asan --linkopt -ldl
+build:asan --copt -fsanitize=address,undefined
+build:asan --linkopt -fsanitize=address,undefined
+build:asan --test_env=ASAN_SYMBOLIZER_PATH
+# These require libubsan, which is not linked properly by bazel, so disable.
+# See https://github.com/google/oss-fuzz/issues/713
+build:asan --copt -fno-sanitize=vptr,function
+build:asan --linkopt -fno-sanitize=vptr,function

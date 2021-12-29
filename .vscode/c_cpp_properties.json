@@ -1,0 +1,41 @@
+{
+  "env": {
+    "commonIncludePaths": [
+      "${workspaceFolder}",
+      "${workspaceFolder}/external/com_google_absl",
+      "${workspaceFolder}/external/com_google_gtest/googletest/include",
+      "${workspaceFolder}/external/com_google_gtest/googlemock/include",
+      "${workspaceFolder}/external/stb/src"
+    ],
+    "myCompilerPath": "/usr/local/bin/gcc-7"
+  },
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${commonIncludePaths}"
+      ],
+      "cStandard": "gnu11",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "linux-clang-x64",
+      "compilerArgs": [
+        "-std=c++20",
+        "-stdlib=libc++"
+      ]
+    },
+    {
+      "name": "Mac",
+      "includePath": [
+        "${commonIncludePaths}"
+      ],
+      "cStandard": "gnu11",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "clang-arm64",
+      "compilerArgs": [
+        "-std=c++20",
+        "-stdlib=libc++"
+      ]
+    }
+  ],
+  "version": 4
+}

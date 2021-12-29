@@ -1,0 +1,11 @@
+bazel-*
+.vs
+
+# VS Code
+# See https://www.toptal.com/developers/gitignore/api/visualstudiocode
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
+*.code-workspace
