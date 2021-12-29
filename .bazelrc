@@ -6,6 +6,12 @@ build --cxxopt=-std=c++20 --define absl=1
 # Fixes symbols when debugging on mac.
 build:macos --features=oso_prefix_is_pwd
 
+# Common flags for Clang
+build:clang --action_env=CC=clang
+build:clang --action_env=CXX=clang++
+build:clang --action_env=BAZEL_COMPILER=clang
+build:clang --incompatible_linkopts_to_linklibs=false
+
 # Basic ASAN/UBSAN that works for gcc
 build:asan --linkopt -ldl
 build:asan --copt -fsanitize=address,undefined

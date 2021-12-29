@@ -2,6 +2,8 @@
 #include "pixelmatch/pixelmatch.h"
 
 #include <cassert>
+#include <cmath>
+#include <cstring>  // For memcmp.
 
 namespace pixelmatch {
 
