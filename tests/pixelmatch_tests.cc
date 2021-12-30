@@ -222,6 +222,15 @@ TEST(Pixelmatch, Validate6Empty) {
            0);
 }
 
+TEST(Pixelmatch, Validate6IncludeAA) {
+  Options options;
+  options.threshold = 0.05;
+  options.includeAA = true;
+
+  diffTest("tests/testdata/6a.png", "tests/testdata/6b.png", "tests/testdata/6diffaa.png", options,
+           4900);
+}
+
 TEST(Pixelmatch, Validate7Diff) {
   Options options;
   options.diffColorAlt = Color{0, 255, 0, 255};
