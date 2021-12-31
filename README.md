@@ -51,3 +51,36 @@ Implements ideas from the following papers:
 - `diffMask` — Draw the diff over a transparent background (a mask), rather than over the original image. Will not draw anti-aliased pixels (if detected).
 
 Compares two images, writes the output diff and returns the number of mismatched pixels.
+
+## Usage
+
+### Bazel
+
+Add the following to your `WORKSPACE` file:
+```python
+git_repository(
+    name = "pixelmatch-cpp",
+    branch = "main",
+    remote = "https://github.com/jwmcglynn/pixelmatch-cpp",
+)
+```
+
+Then add a dependency on `@pixelmatch-cpp`:
+```python
+cc_test(
+    name = "my_test",
+    # ...
+    data = glob([
+      "testdata/*.png",
+    ]),
+    deps = [
+        "@pixelmatch-cpp",
+        # ...
+    ],
+)
+```
+
+In your test file, include pixelmatch with:
+```c++
+#include <pixelmatch/pixelmatch.h>
+```
