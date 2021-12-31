@@ -1,8 +1,8 @@
 
 #include "pixelmatch/pixelmatch.h"
 
+#include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstring>  // For memcmp.
 
 namespace pixelmatch {
@@ -47,8 +47,8 @@ inline uint8_t blend(uint8_t c, float a) {
  * @return the delta, with sign indicating whether the pixel lightens or darkens the pixel lightens
  *          or darkens (positive if img2 lightens). Returns 0 if the pixels are identical.
  */
-float colorDelta(std::span<const uint8_t> img1, std::span<const uint8_t> img2, size_t pos1,
-                 size_t pos2, bool yOnly) {
+float colorDelta(span<const uint8_t> img1, span<const uint8_t> img2, size_t pos1, size_t pos2,
+                 bool yOnly) {
   uint8_t r1 = img1[pos1 + 0];
   uint8_t g1 = img1[pos1 + 1];
   uint8_t b1 = img1[pos1 + 2];
@@ -96,7 +96,7 @@ float colorDelta(std::span<const uint8_t> img1, std::span<const uint8_t> img2, s
 }
 
 /// Check if a pixel has 3+ adjacent pixels of the same color.
-bool hasManySiblings(std::span<const uint8_t> img, int x1, int y1, int width, int height,
+bool hasManySiblings(span<const uint8_t> img, int x1, int y1, int width, int height,
                      size_t strideInPixels) {
   const int x0 = std::max(x1 - 1, 0);
   const int y0 = std::max(y1 - 1, 0);
@@ -132,8 +132,8 @@ bool hasManySiblings(std::span<const uint8_t> img, int x1, int y1, int width, in
  * Check if a pixel is likely a part of anti-aliasing;
  * based on "Anti-aliased Pixel and Intensity Slope Detector" paper by V. Vysniauskas, 2009
  */
-bool antialiased(std::span<const uint8_t> img, int x1, int y1, int width, int height,
-                 size_t strideInPixels, std::span<const uint8_t> img2) {
+bool antialiased(span<const uint8_t> img, int x1, int y1, int width, int height,
+                 size_t strideInPixels, span<const uint8_t> img2) {
   const int x0 = std::max(x1 - 1, 0);
   const int y0 = std::max(y1 - 1, 0);
   const int x2 = std::min(x1 + 1, width - 1);
@@ -194,15 +194,14 @@ bool antialiased(std::span<const uint8_t> img, int x1, int y1, int width, int he
           hasManySiblings(img2, maxX, maxY, width, height, strideInPixels));
 }
 
-inline void drawPixel(std::span<uint8_t> output, size_t pos, Color color) {
+inline void drawPixel(span<uint8_t> output, size_t pos, Color color) {
   output[pos + 0] = color.r;
   output[pos + 1] = color.g;
   output[pos + 2] = color.b;
   output[pos + 3] = color.a;
 }
 
-void drawGrayPixel(std::span<const uint8_t> img, size_t pos, float alpha,
-                   std::span<uint8_t> output) {
+void drawGrayPixel(span<const uint8_t> img, size_t pos, float alpha, span<uint8_t> output) {
   const uint8_t r = img[pos + 0];
   const uint8_t g = img[pos + 1];
   const uint8_t b = img[pos + 2];
@@ -212,9 +211,8 @@ void drawGrayPixel(std::span<const uint8_t> img, size_t pos, float alpha,
 
 }  // namespace
 
-int pixelmatch(std::span<const uint8_t> img1, std::span<const uint8_t> img2,
-               std::span<uint8_t> output, int width, int height, size_t strideInPixels,
-               Options options) {
+int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
+               int height, size_t strideInPixels, Options options) {
   assert(width >= 0);
   assert(height >= 0);
   assert(img1.size() == strideInPixels * height * kPixelBytes &&

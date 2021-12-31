@@ -47,10 +47,18 @@ jobs:
       with:
         limit-access-to-actor: true
 
-    - name: Build
+    - name: Build (C++17)
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" build --config=clang //...
 
-    - name: Test
+    - name: Test (C++17)
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang //...
+
+    - name: Build (C++20)
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" build --config=clang --config=cpp20 //...
+
+    - name: Test (C++20)
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang --config=cpp20 //...

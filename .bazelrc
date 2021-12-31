@@ -1,7 +1,10 @@
 build --enable_platform_specific_config
 
-# Build with C++20, and enable absl for gtest to have stack traces.
-build --cxxopt=-std=c++20 --define absl=1
+# Build with C++17, and enable absl for gtest to have stack traces.
+build --cxxopt=-std=c++17 --define absl=1
+
+# Optionally build with C++20.
+build:cpp20 --cxxopt=-std=c++20
 
 # Fixes symbols when debugging on mac.
 build:macos --features=oso_prefix_is_pwd

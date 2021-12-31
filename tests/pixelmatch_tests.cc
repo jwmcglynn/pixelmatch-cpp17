@@ -32,7 +32,7 @@ std::optional<Image> readRgbaImageFromPngFile(const char* filename) {
   return result;
 }
 
-bool writeRgbaPixelsToPngFile(const char* filename, std::span<const uint8_t> rgbaPixels, int width,
+bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixels, int width,
                               int height, size_t strideInPixels) {
   struct Context {
     std::ofstream output;
@@ -77,8 +77,8 @@ std::ostream& operator<<(std::ostream& os, const Options& options) {
             << ", diffMask=" << options.diffMask << "}";
 }
 
-bool imageEquals(std::span<const uint8_t> img1, std::span<const uint8_t> img2, int width,
-                 int height, size_t strideInPixels) {
+bool imageEquals(span<const uint8_t> img1, span<const uint8_t> img2, int width, int height,
+                 size_t strideInPixels) {
   // Check for identical images, respecting stride.
   for (int y = 0; y < height; ++y) {
     const size_t rowStartIndex = y * strideInPixels;
@@ -120,7 +120,7 @@ void diffTest(const char* filename1, const char* filename2, const char* diffFile
 
   const int mismatch =
       pixelmatch(img1.data, img2.data, diff, img1.width, img1.height, img1.strideInPixels, options);
-  const int mismatchWithoutDiff = pixelmatch(img1.data, img2.data, std::span<uint8_t>(), img1.width,
+  const int mismatchWithoutDiff = pixelmatch(img1.data, img2.data, span<uint8_t>(), img1.width,
                                              img1.height, img1.strideInPixels, options);
 
   if (std::getenv("UPDATE_TEST_IMAGES") != nullptr) {
@@ -242,14 +242,14 @@ TEST(Pixelmatch, Validate7Diff) {
 TEST(PixelMatch, MismatchedImageDataSizes) {
   std::array<uint8_t, 8> img1;
   std::array<uint8_t, 9> img2;
-  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, std::span<uint8_t>(), 2, 1, 2, Options()),
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
                      "Image data size does not match width/height");
 }
 
 TEST(PixelMatch, MismatchedWidthHeight) {
   std::array<uint8_t, 9> img1;
   std::array<uint8_t, 9> img2;
-  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, std::span<uint8_t>(), 2, 1, 2, Options()),
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
                      "Image data size does not match width/height");
 }
 
