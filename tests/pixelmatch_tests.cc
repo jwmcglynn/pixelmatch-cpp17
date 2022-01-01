@@ -1,60 +1,13 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest-death-test.h>
 #include <gtest/gtest.h>
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
 
 #include <filesystem>
-#include <fstream>
 
+#include "pixelmatch/image_utils.h"
 #include "pixelmatch/pixelmatch.h"
 
 namespace pixelmatch {
-
-struct Image {
-  int width;
-  int height;
-  size_t strideInPixels;
-  std::vector<uint8_t> data;
-};
-
-std::optional<Image> readRgbaImageFromPngFile(const char* filename) {
-  int width, height, channels;
-  auto data = stbi_load(filename, &width, &height, &channels, 4);
-  if (!data) {
-    ADD_FAILURE() << "Failed to load image: " << filename;
-    return std::nullopt;
-  }
-
-  Image result{width, height, static_cast<size_t>(width),
-               std::vector<uint8_t>(data, data + width * height * 4)};
-  stbi_image_free(data);
-  return result;
-}
-
-bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixels, int width,
-                              int height, size_t strideInPixels) {
-  struct Context {
-    std::ofstream output;
-  };
-
-  assert(rgbaPixels.size() == strideInPixels * height * 4);
-
-  Context context;
-  context.output = std::ofstream(filename, std::ofstream::out | std::ofstream::binary);
-  if (!context.output) {
-    return false;
-  }
-
-  stbi_write_png_to_func(
-      [](void* context, void* data, int len) {
-        Context* contextObj = reinterpret_cast<Context*>(context);
-        contextObj->output.write(static_cast<const char*>(data), len);
-      },
-      &context, width, height, 4, rgbaPixels.data(), strideInPixels * 4);
-
-  return context.output.good();
-}
 
 std::ostream& operator<<(std::ostream& os, const Color& color) {
   return os << "rgba(" << static_cast<int>(color.r) << " " << static_cast<int>(color.g) << " "
@@ -77,19 +30,6 @@ std::ostream& operator<<(std::ostream& os, const Options& options) {
             << ", diffMask=" << options.diffMask << "}";
 }
 
-bool imageEquals(span<const uint8_t> img1, span<const uint8_t> img2, int width, int height,
-                 size_t strideInPixels) {
-  // Check for identical images, respecting stride.
-  for (int y = 0; y < height; ++y) {
-    const size_t rowStartIndex = y * strideInPixels;
-    if (std::memcmp(&img1[rowStartIndex * 4], &img2[rowStartIndex * 4], width * 4) != 0) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 std::string escapeFilename(std::string filename) {
   std::transform(filename.begin(), filename.end(), filename.begin(), [](char c) {
     if (c == '\\' || c == '/') {
@@ -106,8 +46,14 @@ void diffTest(const char* filename1, const char* filename2, const char* diffFile
   SCOPED_TRACE(testing::Message() << "Comparing " << filename1 << " to " << filename2 << ", "
                                   << options);
 
-  const Image img1 = std::move(readRgbaImageFromPngFile(filename1).value());
-  const Image img2 = std::move(readRgbaImageFromPngFile(filename2).value());
+  auto maybeImg1 = readRgbaImageFromPngFile(filename1);
+  ASSERT_TRUE(maybeImg1.has_value()) << "Failed to load filename1: " << filename1;
+  const Image img1 = std::move(maybeImg1.value());
+
+  auto maybeImg2 = readRgbaImageFromPngFile(filename2);
+  ASSERT_TRUE(maybeImg2.has_value()) << "Failed to load filename2: " << filename2;
+  const Image img2 = std::move(maybeImg2.value());
+
   ASSERT_EQ(img1.width, img2.width)
       << "Size mismatch between " << filename1 << " and " << filename2;
   ASSERT_EQ(img1.height, img2.height)
@@ -126,7 +72,10 @@ void diffTest(const char* filename1, const char* filename2, const char* diffFile
   if (std::getenv("UPDATE_TEST_IMAGES") != nullptr) {
     writeRgbaPixelsToPngFile(diffFilename, diff, img1.width, img1.height, img1.strideInPixels);
   } else {
-    const Image expectedDiff = std::move(readRgbaImageFromPngFile(diffFilename).value());
+    auto maybeExpectedDiff = readRgbaImageFromPngFile(diffFilename);
+    ASSERT_TRUE(maybeExpectedDiff.has_value()) << "Failed to load diffFilename: " << diffFilename;
+    const Image expectedDiff = std::move(maybeExpectedDiff.value());
+
     ASSERT_EQ(img1.width, expectedDiff.width)
         << "Size mismatch between " << filename1 << " and " << diffFilename;
     ASSERT_EQ(img1.height, expectedDiff.height)

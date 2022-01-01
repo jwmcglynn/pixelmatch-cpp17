@@ -3,11 +3,29 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "pixelmatch-cpp",
     srcs = [
-        "pixelmatch/pixelmatch.cc",
+        "src/pixelmatch/pixelmatch.cc",
     ],
     hdrs = [
-        "pixelmatch/pixelmatch.h",
+        "src/pixelmatch/pixelmatch.h",
     ],
-    strip_include_prefix = "",
+    includes = ["src"],
     visibility = ["//visibility:public"],
+)
+
+# Optional library containing utils to save and load images with stb_image.
+cc_library(
+    name = "image_utils",
+    srcs = [
+        "src/pixelmatch/image_utils.cc",
+    ],
+    hdrs = [
+        "src/pixelmatch/image_utils.h",
+    ],
+    includes = ["src"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:pixelmatch-cpp",
+        "@stb//:image",
+        "@stb//:image_write",
+    ],
 )

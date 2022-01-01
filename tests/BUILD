@@ -9,9 +9,8 @@ cc_test(
         "testdata/*.png",
     ]),
     deps = [
+        "//:image_utils",
         "//:pixelmatch-cpp",
         "@com_google_gtest//:gtest_main",
-        "@stb//:image",
-        "@stb//:image_write",
     ],
 )

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <optional>
 
@@ -70,7 +72,7 @@ struct Options {
  * difference metrics.
  *
  * @param img1 First image, as a raw RGBA-ordered pixel buffer. Must be strideInElements * height *
- *              4 bytes long. Assumes that alpha is premultiplied.
+ *              4 bytes long. Assumes that alpha is unpremultiplied.
  * @param img2 Second image, must be the same size as img1.
  * @param output (Optional) Output image buffer, of the same size as img1, or an empty span.
  * @param width in pixels, must be > 0.

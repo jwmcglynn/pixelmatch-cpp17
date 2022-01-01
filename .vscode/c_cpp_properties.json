@@ -1,7 +1,7 @@
 {
   "env": {
     "commonIncludePaths": [
-      "${workspaceFolder}",
+      "${workspaceFolder}/src",
       "${workspaceFolder}/external/com_google_absl",
       "${workspaceFolder}/external/com_google_gtest/googletest/include",
       "${workspaceFolder}/external/com_google_gtest/googlemock/include",

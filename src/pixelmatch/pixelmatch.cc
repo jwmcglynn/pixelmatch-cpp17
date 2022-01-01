@@ -38,7 +38,7 @@ inline uint8_t blend(uint8_t c, float a) {
  * Calculate color difference according to the paper "Measuring perceived color difference
  * using YIQ NTSC transmission color space in mobile applications" by Y. Kotsarenko and F. Ramos
  *
- * @param img1 The first image, with RGBA-encoded pixels with premultiplied alpha.
+ * @param img1 The first image, with RGBA-encoded pixels with unpremultiplied alpha.
  * @param img2 The second image with the same size and format as img1.
  * @param pos1 The position in the \ref img1 buffer to start, in bytes. Should point to the start of
  *              an RGBA-encoded pixel.
@@ -63,7 +63,7 @@ float colorDelta(span<const uint8_t> img1, span<const uint8_t> img2, size_t pos1
     return 0;
   }
 
-  // Unpremultiply alpha.
+  // If there's alpha, blend with a white background.
   if (a1 < 255) {
     const float alpha = a1 / 255.0f;
     r1 = blend(r1, alpha);
