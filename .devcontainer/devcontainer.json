@@ -1,0 +1,44 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/ubuntu
+{
+	"name": "Ubuntu",
+	"build": {
+		"dockerfile": "Dockerfile",
+		// Update 'VARIANT' to pick an Ubuntu version: hirsute, focal, bionic
+		// Use hirsute or bionic on local arm64/Apple Silicon.
+		"args": { "VARIANT": "bionic" }
+	},
+
+	// Set *default* container specific settings.json values on container create.
+  "settings": {
+    // Use zsh by default.
+    "terminal.integrated.profiles.linux": {
+      "zsh": {
+        "path": "zsh"
+      }
+    }
+  },
+
+  // Install bazel and helpful extensions for running tests.
+  "extensions": [
+    "bazelbuild.vscode-bazel",
+    "cschlosser.doxdocgen",
+    "github.copilot",
+    "ms-vscode.cpptools",
+    "vadimcn.vscode-lldb",
+  ],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+
+  // For sharing shell history out of the container.
+  "mounts": [
+    "source=pixelmatch-history,target=/commandhistory,type=volume"
+  ]
+}

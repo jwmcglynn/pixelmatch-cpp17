@@ -1,7 +1,7 @@
 build --enable_platform_specific_config
 
-# Build with C++17, and enable absl for gtest to have stack traces.
-build --cxxopt=-std=c++17 --define absl=1
+# Build with C++17 and clang, enable absl for gtest to have stack traces.
+build --config=clang --cxxopt=-std=c++17 --define absl=1
 
 # Optionally build with C++20.
 build:cpp20 --cxxopt=-std=c++20
@@ -9,11 +9,19 @@ build:cpp20 --cxxopt=-std=c++20
 # Fixes symbols when debugging on mac.
 build:macos --features=oso_prefix_is_pwd
 
+# Flags for libc++
+build:libc++ --action_env=CXXFLAGS=-stdlib=libc++
+build:libc++ --action_env=LDFLAGS=-stdlib=libc++
+build:libc++ --action_env=BAZEL_CXXOPTS=-stdlib=libc++
+build:libc++ --action_env=BAZEL_LINKLIBS=-lc++abi:-lc++
+build:libc++ --define force_libcpp=enabled
+
 # Common flags for Clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --incompatible_linkopts_to_linklibs=false
+build:clang --config=libc++
 
 # Basic ASAN/UBSAN that works for gcc
 build:asan --linkopt -ldl

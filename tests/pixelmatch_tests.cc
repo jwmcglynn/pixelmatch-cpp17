@@ -2,6 +2,7 @@
 #include <gtest/gtest-death-test.h>
 #include <gtest/gtest.h>
 
+#include <array>
 #include <filesystem>
 
 #include "pixelmatch/image_utils.h"
