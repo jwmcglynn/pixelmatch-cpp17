@@ -213,17 +213,18 @@ void drawGrayPixel(span<const uint8_t> img, size_t pos, float alpha, span<uint8_
 
 int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
                int height, size_t strideInPixels, Options options) {
-  assert(width >= 0);
-  assert(height >= 0);
+  assert(width > 0);
+  assert(height > 0);
   assert(img1.size() == strideInPixels * height * kPixelBytes &&
          "Image data size does not match width/height");
   assert(img2.size() == strideInPixels * height * kPixelBytes &&
          "Image data size does not match width/height");
   assert(img1.size() == output.size() || output.empty());
-  assert(strideInPixels >= width && "Stride must be positive and greater than width");
+  assert(strideInPixels >= static_cast<size_t>(width) &&
+         "Stride must be positive and greater than width");
 
   // In release builds, return -1 if a precondition fails since the asserts will not trigger.
-  if (width <= 0 || height <= 0 || strideInPixels < width) {
+  if (width <= 0 || height <= 0 || strideInPixels < static_cast<size_t>(width)) {
     return -1;
   }
 
