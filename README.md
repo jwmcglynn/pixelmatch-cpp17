@@ -1,6 +1,6 @@
 # pixelmatch-cpp17
 
-[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp/actions/workflows/main.yml)
+[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml) [![codecov](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17/branch/main/graph/badge.svg?token=0XMUH3F0RD)](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17)
 
 A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level image comparison library.
 
