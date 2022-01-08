@@ -189,18 +189,79 @@ TEST(Pixelmatch, Validate7Diff) {
            2448);
 }
 
-TEST(PixelMatch, MismatchedImageDataSizes) {
-  std::array<uint8_t, 8> img1;
-  std::array<uint8_t, 9> img2;
-  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
-                     "Image data size does not match width/height");
+TEST(Pixelmatch, WithStride) {
+  constexpr int width = 3;
+  constexpr int height = 4;
+  constexpr size_t stride = 4;
+
+  constexpr size_t bytes = stride * height * 4;
+
+  std::array<uint8_t, bytes> img1{};
+  std::array<uint8_t, bytes> img2{};
+  std::array<uint8_t, bytes> output{};
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      img1[(y * stride + x) * 4 + 0] = 128;
+      img1[(y * stride + x) * 4 + 1] = 128;
+      img1[(y * stride + x) * 4 + 2] = 128;
+      img1[(y * stride + x) * 4 + 3] = 255;
+    }
+  }
+
+  Options options;
+  options.includeAA = true;
+
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, stride, Options()), 12);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      EXPECT_EQ(output[(y * stride + x) * 4 + 0], 255) << "x=" << x << ", y=" << y;
+      EXPECT_EQ(output[(y * stride + x) * 4 + 1], 0) << "x=" << x << ", y=" << y;
+      EXPECT_EQ(output[(y * stride + x) * 4 + 2], 0) << "x=" << x << ", y=" << y;
+      EXPECT_EQ(output[(y * stride + x) * 4 + 3], 255) << "x=" << x << ", y=" << y;
+    }
+  }
 }
 
-TEST(PixelMatch, MismatchedWidthHeight) {
-  std::array<uint8_t, 9> img1;
-  std::array<uint8_t, 9> img2;
-  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
-                     "Image data size does not match width/height");
+TEST(PixelmatchDeathTest, NegativeDimensions) {
+  std::array<uint8_t, 8> img1;
+  std::array<uint8_t, 8> img2;
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), -1, 2, 1, Options()),
+                     "width > 0");
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 1, -2, 1, Options()),
+                     "height > 0");
+}
+
+TEST(PixelmatchDeathTest, MismatchedImageDataSizes) {
+  {
+    std::array<uint8_t, 8> img1;
+    std::array<uint8_t, 9> img2;
+    EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
+                       "Image data size does not match width/height");
+  }
+
+  {
+    std::array<uint8_t, 9> img1;
+    std::array<uint8_t, 8> img2;
+    EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 2, 1, 2, Options()),
+                       "Image data size does not match width/height");
+  }
+}
+
+TEST(PixelmatchDeathTest, InvalidOutputSize) {
+  std::array<uint8_t, 8> img1;
+  std::array<uint8_t, 8> img2;
+  std::array<uint8_t, 9> output;
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, output, 2, 1, 2, Options()),
+                     "img1\\.size\\(\\) == output\\.size\\(\\)");
+}
+
+TEST(PixelmatchDeathTest, InvalidStride) {
+  std::array<uint8_t, 48> img1;
+  std::array<uint8_t, 48> img2;
+  EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 4, 4, 3, Options()),
+                     "Stride must be greater than width");
 }
 
 }  // namespace pixelmatch

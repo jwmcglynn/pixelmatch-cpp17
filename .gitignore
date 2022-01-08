@@ -1,5 +1,9 @@
 bazel-*
 .vs
+coverage-report
+
+# Mac files
+.DS_Store
 
 # VS Code
 # See https://www.toptal.com/developers/gitignore/api/visualstudiocode
