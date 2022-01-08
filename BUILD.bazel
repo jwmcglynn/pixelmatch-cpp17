@@ -1,7 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "pixelmatch-cpp",
+    name = "pixelmatch-cpp17",
     srcs = [
         "src/pixelmatch/pixelmatch.cc",
     ],
@@ -24,7 +24,7 @@ cc_library(
     includes = ["src"],
     visibility = ["//visibility:public"],
     deps = [
-        "//:pixelmatch-cpp",
+        "//:pixelmatch-cpp17",
         "@stb//:image",
         "@stb//:image_write",
     ],

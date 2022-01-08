@@ -1,12 +1,13 @@
-# pixelmatch-cpp
+# pixelmatch-cpp17
 
-[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp/actions/workflows/main.yml)
+[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp/actions/workflows/main.yml)
 
-A C++ port of the JavaScript pixelmatch library, providing a small pixel-level image comparison library.
+A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level image comparison library.
 
 Features accurate **anti-aliased pixels detection** and **perceptual color difference metrics**.
 
-Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp is around **300 lines of code**, and has **no dependencies**, operating on RGBA-encoded buffers.
+Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp17 is around **300 lines of code**, and has **no dependencies**, operating on RGBA-encoded buffers.
+
 
 ```c++
 pixelmatch::Options options;
@@ -18,6 +19,8 @@ std::vector<uint8_t> diffImage(img1.size());
 
 const int numDiffPixels = pixelmatch::pixelmatch(img1, img2, diffImage, width, height, stride, options);
 ```
+
+Compared to [mapbox/pixelmatch-cpp](https://github.com/mapbox/pixelmatch-cpp), pixelmatch-cpp17 ports the latest features from the JavaScript library, and is built with production-grade practices, including thorough test coverage and fuzz-testing.  Build files are included for Bazel, but contributions for other build systems are welcome.
 
 Implements ideas from the following papers:
 
@@ -59,13 +62,13 @@ Compares two images, writes the output diff and returns the number of mismatched
 Add the following to your `WORKSPACE` file:
 ```python
 git_repository(
-    name = "pixelmatch-cpp",
+    name = "pixelmatch-cpp17",
     branch = "main",
-    remote = "https://github.com/jwmcglynn/pixelmatch-cpp",
+    remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
 )
 ```
 
-Then add a dependency on `@pixelmatch-cpp`:
+Then add a dependency on `@pixelmatch-cpp17`:
 ```python
 cc_test(
     name = "my_test",
@@ -74,7 +77,7 @@ cc_test(
       "testdata/*.png",
     ]),
     deps = [
-        "@pixelmatch-cpp",
+        "@pixelmatch-cpp17",
         # ...
     ],
 )
