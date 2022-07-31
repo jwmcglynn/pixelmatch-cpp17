@@ -103,6 +103,39 @@ void diffTest(const char* filename1, const char* filename2, const char* diffFile
       << "Mismatched pixels differ when diff output is disabled";
 }
 
+/**
+ * Return true if the two pixels are identical.
+ */
+bool compareSinglePixel(const Color& pixel1, const Color& pixel2) {
+  constexpr int width = 1;
+  constexpr int height = 1;
+  constexpr size_t strideInPixels = 1;
+
+  constexpr size_t bytes = strideInPixels * height * 4;
+
+  std::array<uint8_t, bytes> img1{};
+  std::array<uint8_t, bytes> img2{};
+  std::array<uint8_t, bytes> output{};
+
+  img1[0] = pixel1.r;
+  img1[1] = pixel1.g;
+  img1[2] = pixel1.b;
+  img1[3] = pixel1.a;
+
+  img2[0] = pixel2.r;
+  img2[1] = pixel2.g;
+  img2[2] = pixel2.b;
+  img2[3] = pixel2.a;
+
+  Options options;
+  options.includeAA = true;
+  options.threshold = 0;
+
+  const int difference = pixelmatch(img1, img2, output, width, height, strideInPixels, options);
+  EXPECT_NE(difference, -1) << "Preconditions failed";
+  return difference == 0;
+}
+
 Options defaultTestOptions() {
   Options result;
   result.threshold = 0.05f;
@@ -212,7 +245,7 @@ TEST(Pixelmatch, WithStride) {
   Options options;
   options.includeAA = true;
 
-  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, stride, Options()), 12);
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, stride, options), 12);
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -262,6 +295,27 @@ TEST(PixelmatchDeathTest, InvalidStride) {
   std::array<uint8_t, 48> img2;
   EXPECT_DEBUG_DEATH(pixelmatch(img1, img2, pixelmatch::span<uint8_t>(), 4, 4, 3, Options()),
                      "Stride must be greater than width");
+}
+
+TEST(Pixelmatch, SingleChannelDifferences) {
+  EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 255}, Color{0, 0, 0, 255}));
+
+  // With large channel differences.
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{255, 0, 0, 255}));
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{0, 255, 0, 255}));
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{0, 0, 255, 255}));
+
+  // With small channel differences.
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{1, 0, 0, 255}));
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{0, 1, 0, 255}));
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 255}, Color{0, 0, 1, 255}));
+}
+
+TEST(Pixelmatch, DifferencesInTransparentPixels) {
+  // Color channels have no effect if alpha is zero.
+  EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{255, 0, 0, 0}));
+  EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 255, 0, 0}));
+  EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 0, 255, 0}));
 }
 
 }  // namespace pixelmatch
