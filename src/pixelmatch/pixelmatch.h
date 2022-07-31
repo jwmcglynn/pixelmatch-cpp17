@@ -48,6 +48,9 @@ private:
 };
 #endif
 
+/**
+ * RGBA-ordered 32-bit color.
+ */
 struct Color {
   uint8_t r;
   uint8_t g;
@@ -55,9 +58,15 @@ struct Color {
   uint8_t a;
 };
 
+/**
+ * Pixelmatch options.
+ *
+ * Defaults to detect anti-aliasing and a small but non-zero threshold of 0.1.
+ */
 struct Options {
-  float threshold = 0.1f;              //!< Matching threshold (0 to 1); smaller is more sensitive
-  bool includeAA = false;              //!< Whether to skip anti-aliasing detection
+  float threshold = 0.1f;  //!< Matching threshold (0 to 1); smaller is more sensitive
+  bool includeAA =
+      false;  //!< Includes anti-aliased pixels in the diff, which disables anti-aliasing detection
   float alpha = 0.1f;                  //!< Opacity of original image in diff output
   Color aaColor = {255, 255, 0, 255};  //!< Color of anti-aliased pixels in diff output
   Color diffColor = {255, 0, 0, 255};  //!< Color of different pixels in diff output
