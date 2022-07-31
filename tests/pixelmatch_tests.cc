@@ -316,6 +316,9 @@ TEST(Pixelmatch, DifferencesInTransparentPixels) {
   EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{255, 0, 0, 0}));
   EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 255, 0, 0}));
   EXPECT_TRUE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 0, 255, 0}));
+
+  // Transparency-only changes still count.
+  EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 0, 0, 128}));
 }
 
 }  // namespace pixelmatch
