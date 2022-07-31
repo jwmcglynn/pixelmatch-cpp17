@@ -42,6 +42,18 @@ std::string escapeFilename(std::string filename) {
   return filename;
 }
 
+template <size_t kBytes>
+void setPixel(std::array<uint8_t, kBytes>& destination, int offsetInPixels, Color color) {
+  ASSERT_TRUE(offsetInPixels >= 0 && offsetInPixels < kBytes / 4)
+      << "offsetInPixels=" << offsetInPixels;
+  const int offset = offsetInPixels * 4;
+
+  destination[offset + 0] = color.r;
+  destination[offset + 1] = color.g;
+  destination[offset + 2] = color.b;
+  destination[offset + 3] = color.a;
+}
+
 void diffTest(const char* filename1, const char* filename2, const char* diffFilename,
               Options options, int expectedMismatch) {
   SCOPED_TRACE(testing::Message() << "Comparing " << filename1 << " to " << filename2 << ", "
@@ -117,15 +129,8 @@ bool compareSinglePixel(const Color& pixel1, const Color& pixel2) {
   std::array<uint8_t, bytes> img2{};
   std::array<uint8_t, bytes> output{};
 
-  img1[0] = pixel1.r;
-  img1[1] = pixel1.g;
-  img1[2] = pixel1.b;
-  img1[3] = pixel1.a;
-
-  img2[0] = pixel2.r;
-  img2[1] = pixel2.g;
-  img2[2] = pixel2.b;
-  img2[3] = pixel2.a;
+  setPixel(img1, 0, pixel1);
+  setPixel(img2, 0, pixel2);
 
   Options options;
   options.includeAA = true;
@@ -319,6 +324,70 @@ TEST(Pixelmatch, DifferencesInTransparentPixels) {
 
   // Transparency-only changes still count.
   EXPECT_FALSE(compareSinglePixel(Color{0, 0, 0, 0}, Color{0, 0, 0, 128}));
+}
+
+TEST(Pixelmatch, AlphaDifferenceInAdjacentPixel) {
+  constexpr int width = 4;
+  constexpr int height = 1;
+  constexpr size_t strideInPixels = width;
+
+  constexpr size_t bytes = strideInPixels * height * 4;
+
+  std::array<uint8_t, bytes> img1{};
+  std::array<uint8_t, bytes> img2{};
+  std::array<uint8_t, bytes> output{};
+
+  Options options;
+  options.threshold = 0;
+
+  setPixel(img1, 0, Color{50, 25, 0, 255});
+  setPixel(img1, 1, Color{50, 50, 0, 255});
+  setPixel(img1, 2, Color{50, 70, 0, 255});
+
+  setPixel(img2, 0, Color{50, 25, 0, 255});
+  setPixel(img2, 1, Color{50, 70, 0, 255});
+  setPixel(img2, 2, Color{50, 70, 0, 128});
+
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, strideInPixels, options), 2);
+}
+
+TEST(Pixelmatch, ColorDifferenceInAdjacentPixel) {
+  constexpr int width = 4;
+  constexpr int height = 1;
+  constexpr size_t strideInPixels = width;
+
+  constexpr size_t bytes = strideInPixels * height * 4;
+
+  std::array<uint8_t, bytes> img1{};
+  std::array<uint8_t, bytes> img2{};
+  std::array<uint8_t, bytes> output{};
+
+  Options options;
+  options.threshold = 0;
+
+  const Color adjacentPixelColor{50, 70, 0, 255};
+  setPixel(img1, 0, Color{50, 25, 0, 255});
+  setPixel(img1, 1, Color{50, 70, 0, 255});
+  setPixel(img1, 2, adjacentPixelColor);
+
+  setPixel(img2, 0, Color{50, 25, 0, 255});
+  setPixel(img2, 1, Color{50, 50, 0, 255});
+  setPixel(img2, 2, adjacentPixelColor);
+
+  Color testedPixelColor = adjacentPixelColor;
+  testedPixelColor.r += 10;
+  setPixel(img1, 2, testedPixelColor);
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, strideInPixels, options), 2);
+
+  testedPixelColor = adjacentPixelColor;
+  testedPixelColor.g += 10;
+  setPixel(img1, 2, testedPixelColor);
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, strideInPixels, options), 2);
+
+  testedPixelColor = adjacentPixelColor;
+  testedPixelColor.b += 10;
+  setPixel(img1, 2, testedPixelColor);
+  EXPECT_EQ(pixelmatch(img1, img2, output, width, height, strideInPixels, options), 2);
 }
 
 }  // namespace pixelmatch
