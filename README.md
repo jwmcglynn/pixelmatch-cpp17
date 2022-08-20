@@ -43,8 +43,7 @@ Implements ideas from the following papers:
 - `output` — Image data to write the diff to, or `std::nullopt` if you don't need a diff image.
 - `width`, `height` — Width and height of the images. Note that _all three images_ need to have the same dimensions.
 - `strideInPixels` — Stride of the images. Note that _all three images_ need to have the same stride.
-`options` is a struct with the following fields:
-
+- `options` is a struct with the following fields:
   - `threshold` — Matching threshold, ranges from `0.0f` to `1.0f`. Smaller values make the comparison more sensitive. `0.1` by default.
   - `includeAA` — If `true`, disables detecting and ignoring anti-aliased pixels. `false` by default.
   - `alpha` — Blending factor of unchanged pixels in the diff output. Ranges from `0` for pure white to `1` for original brightness. `0.1` by default.
