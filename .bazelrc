@@ -31,7 +31,6 @@ build:libc++ --define force_libcpp=enabled
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 build:clang --action_env=BAZEL_COMPILER=clang
-build:clang --incompatible_linkopts_to_linklibs=false
 build:clang --config=libc++
 
 # Basic ASAN/UBSAN that works for gcc
