@@ -32,13 +32,13 @@ jobs:
         wget https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -O "${GITHUB_WORKSPACE}/bin/bazel"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
-    - name: Install clang-13
+    - name: Install clang-16
       run: |
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
+        sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-16 main"
         sudo apt-get update
-        sudo apt-get install -y clang-13 libc++-13-dev libc++abi-13-dev
-        echo "/usr/lib/llvm-13/bin" >> $GITHUB_PATH
+        sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev
+        echo "/usr/lib/llvm-16/bin" >> $GITHUB_PATH
 
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session

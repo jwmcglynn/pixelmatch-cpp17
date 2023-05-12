@@ -1,7 +1,4 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/ubuntu/.devcontainer/base.Dockerfile
-
-# [Choice] Ubuntu version (use hirsuite or bionic on local arm64/Apple Silicon): hirsute, focal, bionic
-ARG VARIANT="bionic"
+ARG VARIANT="jammy"
 FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
 
 ARG USERNAME=vscode
@@ -28,16 +25,16 @@ RUN mkdir -p /tmp/llvm \
   && cd /tmp/llvm \
   && wget https://apt.llvm.org/llvm.sh \
   && chmod +x ./llvm.sh \
-  && ./llvm.sh 13 \
+  && ./llvm.sh 16 \
   && rm -rf /tmp/llvm
 
 # Install libc++
 RUN apt-get update \
   && export DEBIAN_FRONTEND=noninteractive \
-  && apt-get -y install --no-install-recommends libc++-13-dev libc++abi-13-dev
+  && apt-get -y install --no-install-recommends libc++-16-dev libc++abi-16-dev
 
 # Update path so this clang is first.
-ENV PATH=/usr/lib/llvm-13/bin:${PATH}
+ENV PATH=/usr/lib/llvm-16/bin:${PATH}
 
 #
 # Install java
