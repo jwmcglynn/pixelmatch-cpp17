@@ -1,6 +1,6 @@
 # pixelmatch-cpp17
 
-[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml) [![codecov](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17/branch/main/graph/badge.svg?token=0XMUH3F0RD)](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17)
+[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml) [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC) [![codecov](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17/branch/main/graph/badge.svg?token=0XMUH3F0RD)](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17)
 
 A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level image comparison library.
 
@@ -9,7 +9,7 @@ Features accurate **anti-aliased pixels detection** and **perceptual color diffe
 Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp17 is around **300 lines of code**, and has **no dependencies**, operating on RGBA-encoded buffers.
 
 
-```c++
+```cpp
 pixelmatch::Options options;
 options.threshold = 0.1f;
 
@@ -59,7 +59,7 @@ Compares two images, writes the output diff and returns the number of mismatched
 ### Bazel
 
 Add the following to your `WORKSPACE` file:
-```python
+```py
 git_repository(
     name = "pixelmatch-cpp17",
     branch = "main",
@@ -68,7 +68,7 @@ git_repository(
 ```
 
 Then add a dependency on `@pixelmatch-cpp17`:
-```python
+```py
 cc_test(
     name = "my_test",
     # ...
@@ -83,6 +83,6 @@ cc_test(
 ```
 
 In your test file, include pixelmatch with:
-```c++
+```cpp
 #include <pixelmatch/pixelmatch.h>
 ```
