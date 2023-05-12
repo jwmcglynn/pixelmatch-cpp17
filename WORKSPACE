@@ -21,9 +21,9 @@ git_repository(
 
 http_archive(
     name = "com_googlesource_code_re2",
-    sha256 = "0a890c2aa0bb05b2ce906a15efb520d0f5ad4c7d37b8db959c43772802991887",
-    strip_prefix = "re2-a427f10b9fb4622dd6d8643032600aa1b50fbd12",
-    urls = ["https://github.com/google/re2/archive/a427f10b9fb4622dd6d8643032600aa1b50fbd12.zip"],
+    sha256 = "3664a5d4915f3cf5a9172beb1011dca13d21edc26ce4831a5103140aeae903d2",
+    strip_prefix = "re2-c9cba76063cf4235c1a15dd14a24a4ef8d623761",
+    urls = ["https://github.com/google/re2/archive/c9cba76063cf4235c1a15dd14a24a4ef8d623761.zip"],
 )
 
 git_repository(
