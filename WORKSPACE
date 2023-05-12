@@ -8,23 +8,21 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 git_repository(
     name = "com_google_gtest",
     remote = "https://github.com/google/googletest",
-    tag = "release-1.12.1",
+    tag = "v1.13.0",
 )
 
-# Use absl at head.
+# Absl at head is currently broken with v1.13.0 of gtest.
 git_repository(
     name = "com_google_absl",
-    branch = "master",
     remote = "https://github.com/abseil/abseil-cpp",
+    tag = "20230125.3",
 )
 
-# Note this must use a commit from the `abseil` branch of the RE2 project.
-# https://github.com/google/re2/tree/abseil
 http_archive(
     name = "com_googlesource_code_re2",
     sha256 = "0a890c2aa0bb05b2ce906a15efb520d0f5ad4c7d37b8db959c43772802991887",
     strip_prefix = "re2-a427f10b9fb4622dd6d8643032600aa1b50fbd12",
-    urls = ["https://github.com/google/re2/archive/a427f10b9fb4622dd6d8643032600aa1b50fbd12.zip"],  # 2022-06-09
+    urls = ["https://github.com/google/re2/archive/a427f10b9fb4622dd6d8643032600aa1b50fbd12.zip"],
 )
 
 git_repository(
@@ -40,9 +38,9 @@ git_repository(
 
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "127d7c45e9b7520b3c42145b3cb1b8c26477cdaed0521b02a0298907339fefa1",
-    strip_prefix = "rules_fuzzing-0.2.0",
-    urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.2.0.zip"],
+    sha256 = "d9002dd3cd6437017f08593124fdd1b13b3473c7b929ceb0e60d317cb9346118",
+    strip_prefix = "rules_fuzzing-0.3.2",
+    urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.2.zip"],
 )
 
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
