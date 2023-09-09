@@ -8,23 +8,12 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 git_repository(
     name = "com_google_gtest",
     remote = "https://github.com/google/googletest",
-    tag = "v1.13.0",
+    tag = "v1.14.0",
 )
 
-# Absl at head is currently broken with v1.13.0 of gtest.
-# Abseil LTS branch, Jan 2023, Patch 3, https://github.com/abseil/abseil-cpp/releases/tag/20230125.3
-git_repository(
-    name = "com_google_absl",
-    remote = "https://github.com/abseil/abseil-cpp",
-    tag = "20230125.3",
-)
+load("@com_google_gtest//:googletest_deps.bzl", "googletest_deps")
 
-http_archive(
-    name = "com_googlesource_code_re2",
-    sha256 = "aeb2855ad3631b316086b4c32262409dad30679930b2c99e19618023cbe12bca",
-    strip_prefix = "re2-a807e8a3aac2cc33c77b7071efea54fcabe38e0c",
-    urls = ["https://github.com/google/re2/archive/a807e8a3aac2cc33c77b7071efea54fcabe38e0c.zip"],
-)
+googletest_deps()
 
 git_repository(
     name = "stb",
