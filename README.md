@@ -106,3 +106,7 @@ In your test file, include pixelmatch with:
 ```cpp
 #include <pixelmatch/pixelmatch.h>
 ```
+
+## Projects using pixelmatch-cpp17
+
+- Python bindings: https://github.com/cubao/pybind11_pixelmatch
