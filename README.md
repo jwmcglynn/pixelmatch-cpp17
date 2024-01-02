@@ -10,6 +10,8 @@ Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-
 
 
 ```cpp
+#include <pixelmatch/pixelmatch.h>
+
 pixelmatch::Options options;
 options.threshold = 0.1f;
 
@@ -58,7 +60,23 @@ Compares two images, writes the output diff and returns the number of mismatched
 
 ### Bazel
 
+#### Bazel 7.0.0 or newer (bzlmod)
+
+Add the following to your `MODULE.bazel` file:
+
+```py
+bazel_dep(name = "pixelmatch-cpp17", version = "0.0.0")
+git_override(
+    module_name = "pixelmatch-cpp17",
+    remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
+    commit = "<latest commit hash>", # Ex: 2ab1b929916b97668698523a91e752413d01939c
+)
+```
+
+#### Bazel before 7.0.0 (legacy method)
+
 Add the following to your `WORKSPACE` file:
+
 ```py
 git_repository(
     name = "pixelmatch-cpp17",
@@ -66,6 +84,8 @@ git_repository(
     remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
 )
 ```
+
+#### Adding the dependency
 
 Then add a dependency on `@pixelmatch-cpp17`:
 ```py
