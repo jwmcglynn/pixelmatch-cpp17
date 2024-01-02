@@ -1,27 +1,6 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 workspace(name = "pixelmatch-cpp17")
-
-##
-## Third-party dependencies.
-##
-
-git_repository(
-    name = "com_google_gtest",
-    remote = "https://github.com/google/googletest",
-    tag = "v1.14.0",
-)
-
-load("@com_google_gtest//:googletest_deps.bzl", "googletest_deps")
-
-googletest_deps()
-
-git_repository(
-    name = "stb",
-    commit = "3e510ee1e14fb3450f864f218f82c6398daf84fd",
-    remote = "https://github.com/jwmcglynn/rules_stb",
-)
 
 ##
 ## Fuzzer dependencies.
