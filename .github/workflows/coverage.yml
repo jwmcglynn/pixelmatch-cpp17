@@ -35,6 +35,10 @@ jobs:
     - name: Generate coverage
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" coverage //...
+        genhtml ./bazel-out/_coverage/_coverage_report.dat \
+          --highlight \
+          --legend \
+          --output-directory coverage-report
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
