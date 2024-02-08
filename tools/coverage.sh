@@ -8,4 +8,5 @@ bazel coverage //...
 genhtml bazel-out/_coverage/_coverage_report.dat \
   --highlight \
   --legend \
+  --branch-coverage \
   --output-directory coverage-report
