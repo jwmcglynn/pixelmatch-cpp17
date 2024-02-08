@@ -22,7 +22,7 @@ struct Image {
  * @param filename Filename to load.
  * @return std::optional<Image> containing the image, or std::nullopt if the file could not be read.
  */
-std::optional<Image> readRgbaImageFromPngFile(const char* filename);
+std::optional<Image> readRgbaImageFromPngFile(const char* filename) noexcept;
 
 /**
  * Save an image as a PNG file.
@@ -35,7 +35,7 @@ std::optional<Image> readRgbaImageFromPngFile(const char* filename);
  * @return true If the image was successfully saved.
  */
 bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixels, int width,
-                              int height, size_t strideInPixels);
+                              int height, size_t strideInPixels) noexcept;
 
 /**
  * Returns true if two images are bit-identical.
@@ -49,6 +49,6 @@ bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixe
  * @return true If the image is bit-identical.
  */
 bool imageEquals(span<const uint8_t> img1, span<const uint8_t> img2, int width, int height,
-                 size_t strideInPixels);
+                 size_t strideInPixels) noexcept;
 
 }  // namespace pixelmatch

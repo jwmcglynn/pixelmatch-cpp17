@@ -9,7 +9,7 @@
 
 namespace pixelmatch {
 
-std::optional<Image> readRgbaImageFromPngFile(const char* filename) {
+std::optional<Image> readRgbaImageFromPngFile(const char* filename) noexcept {
   int width, height, channels;
   auto data = stbi_load(filename, &width, &height, &channels, 4);
   if (!data) {
@@ -23,7 +23,7 @@ std::optional<Image> readRgbaImageFromPngFile(const char* filename) {
 }
 
 bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixels, int width,
-                              int height, size_t strideInPixels) {
+                              int height, size_t strideInPixels) noexcept {
   struct Context {
     std::ofstream output;
   };
@@ -37,7 +37,7 @@ bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixe
   }
 
   stbi_write_png_to_func(
-      [](void* context, void* data, int len) {
+      [](void* context, void* data, int len) noexcept {
         Context* contextObj = reinterpret_cast<Context*>(context);
         contextObj->output.write(static_cast<const char*>(data), len);
       },
@@ -47,7 +47,7 @@ bool writeRgbaPixelsToPngFile(const char* filename, span<const uint8_t> rgbaPixe
 }
 
 bool imageEquals(span<const uint8_t> img1, span<const uint8_t> img2, int width, int height,
-                 size_t strideInPixels) {
+                 size_t strideInPixels) noexcept {
   // Check for identical images, respecting stride.
   for (int y = 0; y < height; ++y) {
     const size_t rowStartIndex = y * strideInPixels;

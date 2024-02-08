@@ -11,15 +11,15 @@ namespace {
 
 static constexpr size_t kPixelBytes = 4;
 
-inline float rgb2y(uint8_t r, uint8_t g, uint8_t b) {
+inline float rgb2y(uint8_t r, uint8_t g, uint8_t b) noexcept {
   return r * 0.29889531f + g * 0.58662247f + b * 0.11448223f;
 }
 
-inline float rgb2i(uint8_t r, uint8_t g, uint8_t b) {
+inline float rgb2i(uint8_t r, uint8_t g, uint8_t b) noexcept {
   return r * 0.59597799f - g * 0.27417610f - b * 0.32180189f;
 }
 
-inline float rgb2q(uint8_t r, uint8_t g, uint8_t b) {
+inline float rgb2q(uint8_t r, uint8_t g, uint8_t b) noexcept {
   return r * 0.21147017f - g * 0.52261711f + b * 0.31114694f;
 }
 
@@ -30,7 +30,7 @@ inline float rgb2q(uint8_t r, uint8_t g, uint8_t b) {
  * @param alpha The alpha value of the color, between 0 and 1.
  * @return The blended color.
  */
-inline uint8_t blend(uint8_t c, float a) {
+inline uint8_t blend(uint8_t c, float a) noexcept {
   return static_cast<uint8_t>(255.0f + (static_cast<float>(c) - 255.0f) * a);
 }
 
@@ -48,7 +48,7 @@ inline uint8_t blend(uint8_t c, float a) {
  *          or darkens (positive if img2 lightens). Returns 0 if the pixels are identical.
  */
 float colorDelta(span<const uint8_t> img1, span<const uint8_t> img2, size_t pos1, size_t pos2,
-                 bool yOnly) {
+                 bool yOnly) noexcept {
   uint8_t r1 = img1[pos1 + 0];
   uint8_t g1 = img1[pos1 + 1];
   uint8_t b1 = img1[pos1 + 2];
@@ -133,7 +133,7 @@ bool hasManySiblings(span<const uint8_t> img, int x1, int y1, int width, int hei
  * based on "Anti-aliased Pixel and Intensity Slope Detector" paper by V. Vysniauskas, 2009
  */
 bool antialiased(span<const uint8_t> img, int x1, int y1, int width, int height,
-                 size_t strideInPixels, span<const uint8_t> img2) {
+                 size_t strideInPixels, span<const uint8_t> img2) noexcept {
   const int x0 = std::max(x1 - 1, 0);
   const int y0 = std::max(y1 - 1, 0);
   const int x2 = std::min(x1 + 1, width - 1);
@@ -194,14 +194,14 @@ bool antialiased(span<const uint8_t> img, int x1, int y1, int width, int height,
           hasManySiblings(img2, maxX, maxY, width, height, strideInPixels));
 }
 
-inline void drawPixel(span<uint8_t> output, size_t pos, Color color) {
+inline void drawPixel(span<uint8_t> output, size_t pos, Color color) noexcept {
   output[pos + 0] = color.r;
   output[pos + 1] = color.g;
   output[pos + 2] = color.b;
   output[pos + 3] = color.a;
 }
 
-void drawGrayPixel(span<const uint8_t> img, size_t pos, float alpha, span<uint8_t> output) {
+void drawGrayPixel(span<const uint8_t> img, size_t pos, float alpha, span<uint8_t> output) noexcept {
   const uint8_t r = img[pos + 0];
   const uint8_t g = img[pos + 1];
   const uint8_t b = img[pos + 2];
@@ -212,7 +212,7 @@ void drawGrayPixel(span<const uint8_t> img, size_t pos, float alpha, span<uint8_
 }  // namespace
 
 int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
-               int height, size_t strideInPixels, Options options) {
+               int height, size_t strideInPixels, Options options) noexcept {
   // In release builds, return -1 if a precondition fails since the asserts will not trigger.
   if (width <= 0 || height <= 0 || strideInPixels < static_cast<size_t>(width)) {
     assert(width > 0);

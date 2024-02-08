@@ -18,10 +18,10 @@ using span = std::span<T>;
 template <typename T>
 class span {
 public:
-  constexpr span() = default;
-  ~span() = default;
+  constexpr span() noexcept = default;
+  ~span() noexcept = default;
 
-  constexpr span(T* data, size_t size) : data_(data), size_(size) {}
+  constexpr span(T* data, size_t size) noexcept : data_(data), size_(size) {}
 
   template <typename Container,
             std::enable_if_t<
@@ -30,17 +30,17 @@ public:
                         std::remove_pointer_t<decltype(std::declval<Container&>().data())> (*)[],
                         T (*)[]>::value,
                 int> = 0>
-  constexpr span(Container& container) : span(container.data(), container.size()) {}
+  constexpr span(Container& container) noexcept : span(container.data(), container.size()) {}
 
-  span(const span&) = default;
-  span& operator=(const span&) = default;
+  span(const span&) noexcept = default;
+  span& operator=(const span&) noexcept = default;
 
-  const T* data() const { return data_; }
-  size_t size() const { return size_; }
+  const T* data() const noexcept { return data_; }
+  size_t size() const noexcept { return size_; }
   bool empty() const { return size_ == 0; }
 
-  T operator[](size_t index) const { return data_[index]; }
-  T& operator[](size_t index) { return data_[index]; }
+  T operator[](size_t index) const noexcept { return data_[index]; }
+  T& operator[](size_t index) noexcept { return data_[index]; }
 
 private:
   T* data_ = nullptr;
@@ -92,6 +92,6 @@ struct Options {
  *         fails, returns -1.
  */
 int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
-               int height, size_t strideInPixels, Options options = Options());
+               int height, size_t strideInPixels, Options options = Options()) noexcept;
 
 }  // namespace pixelmatch
