@@ -44,8 +44,9 @@ std::string escapeFilename(std::string filename) {
 
 template <size_t kBytes>
 void setPixel(std::array<uint8_t, kBytes>& destination, int offsetInPixels, Color color) {
-  ASSERT_TRUE(offsetInPixels >= 0 && offsetInPixels < kBytes / 4)
-      << "offsetInPixels=" << offsetInPixels;
+  ASSERT_GE(offsetInPixels, 0);
+  ASSERT_LT(static_cast<size_t>(offsetInPixels), kBytes / 4);
+
   const int offset = offsetInPixels * 4;
 
   destination[offset + 0] = color.r;
