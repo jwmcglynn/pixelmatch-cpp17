@@ -1,0 +1,10 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "fuzzed_data_provider",
+    hdrs = [
+        "FuzzedDataProvider.h",
+    ],
+    include_prefix = "fuzzer",
+    visibility = ["//visibility:public"],
+)

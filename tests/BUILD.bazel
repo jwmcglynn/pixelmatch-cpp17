@@ -47,5 +47,6 @@ cc_fuzz_test(
     ],
     deps = [
         "//:pixelmatch-cpp17",
+        "//third_party/fuzzer:fuzzed_data_provider",
     ],
 )
