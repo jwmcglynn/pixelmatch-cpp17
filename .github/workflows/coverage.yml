@@ -32,17 +32,9 @@ jobs:
         java-version: 11
         distribution: 'microsoft'
 
-    - name: Install clang-16
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-16 main"
-        sudo apt-get update
-        sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev
-        echo "/usr/lib/llvm-16/bin" >> $GITHUB_PATH
-
     - name: Generate coverage
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" coverage --nocache_test_results //...
+        "${GITHUB_WORKSPACE}/bin/bazel" coverage //...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4

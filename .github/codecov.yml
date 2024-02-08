@@ -1,3 +1,9 @@
 coverage:
-  ignore:
-    - "tests"
+  status:
+    patch:
+      default:
+        informational: true
+    project:
+      default:
+        only_pulls: true
+        informational: true
