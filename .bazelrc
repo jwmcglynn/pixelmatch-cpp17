@@ -1,18 +1,16 @@
 build --enable_platform_specific_config
 
 # Build with C++17 and clang, enable absl for gtest to have stack traces.
-build --config=clang --cxxopt=-std=c++17 --define absl=1
+build --cxxopt=-std=c++17 --define absl=1
 
 # For coverage builds, don't include tests tagged with "nocoverage"
-coverage --config=coverage --test_tag_filters=-nocoverage
+coverage --config=coverage --test_tag_filters=-nocoverage --build_tag_filters=-nocoverage
+build:coverage --instrument_test_targets
 build:coverage --cxxopt=-DNDEBUG
-build:coverage --action_env=BAZEL_USE_LLVM_NATIVE_COVERAGE=1
-build:coverage --action_env=GCOV=llvm-profdata
-build:coverage --action_env=BAZEL_LLVM_COV=llvm-cov
-build:coverage --experimental_generate_llvm_lcov
-build:coverage --collect_code_coverage
-build:coverage --combined_report=lcov
-build:coverage --instrumentation_filter="//src[:/]"
+test:coverage --collect_code_coverage
+test:coverage --nocache_test_results
+coverage --combined_report=lcov
+coverage --instrumentation_filter="^//:"
 
 # Optionally build with C++20.
 build:cpp20 --cxxopt=-std=c++20

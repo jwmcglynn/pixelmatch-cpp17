@@ -110,3 +110,8 @@ In your test file, include pixelmatch with:
 ## Projects using pixelmatch-cpp17
 
 - Python bindings: https://github.com/cubao/pybind11_pixelmatch
+
+## Documentation
+
+- [Code Coverage](docs/code_coverage.md)
+- [Fuzz Testing](docs/fuzz_testing.md)

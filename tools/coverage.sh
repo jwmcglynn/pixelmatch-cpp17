@@ -3,7 +3,7 @@ cd "$(dirname "$0")/.."
 
 JAVA_HOME=$(dirname $(dirname $(which java)))
 
-bazel coverage -s --nocache_test_results //...
+bazel coverage //...
 
 genhtml bazel-out/_coverage/_coverage_report.dat \
   --highlight \
