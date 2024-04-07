@@ -13,3 +13,7 @@ coverage-report
 !.vscode/extensions.json
 !.vscode/c_cpp_properties.json
 *.code-workspace
+
+# The Bzlmod lockfile is platform-dependent with Python and thus hard
+# to keep up-to-date in CI. It still speeds up local development.
+MODULE.bazel.lock

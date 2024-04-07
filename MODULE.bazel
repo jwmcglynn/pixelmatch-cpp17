@@ -28,3 +28,15 @@ git_override(
     remote = "https://github.com/jwmcglynn/rules_stb",
     commit = "3e510ee1e14fb3450f864f218f82c6398daf84fd",
 )
+
+#
+# Fuzzing dependencies
+#
+
+bazel_dep(name = "rules_fuzzing", version = "0.0.0", dev_dependency = True)
+archive_override(
+    module_name = "rules_fuzzing",
+    strip_prefix = "rules_fuzzing-0.5.1",
+    integrity = "sha256-dyBsVLcfTdUzUSOm/yqOpojspTeNNLSDgRTf9xZSzyY=",
+    urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.5.1.zip"],
+)
