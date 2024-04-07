@@ -19,7 +19,7 @@ googletest_deps()
 
 git_repository(
     name = "stb",
-    commit = "3e510ee1e14fb3450f864f218f82c6398daf84fd",
+    commit = "075e5a470e31e46a7318cc308c79dba205a6b2eb",
     remote = "https://github.com/jwmcglynn/rules_stb",
 )
 
