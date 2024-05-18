@@ -40,9 +40,9 @@ py_repositories()
 
 http_archive(
     name = "rules_fuzzing",
-    sha256 = "77206c54b71f4dd5335123a6ff2a8ea688eca5378d34b4838114dff71652cf26",
-    strip_prefix = "rules_fuzzing-0.5.1",
-    urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.5.1.zip"],
+    sha256 = "e6bc219bfac9e1f83b327dd090f728a9f973ee99b9b5d8e5a184a2732ef08623",
+    strip_prefix = "rules_fuzzing-0.5.2",
+    urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.5.2.zip"],
 )
 
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
