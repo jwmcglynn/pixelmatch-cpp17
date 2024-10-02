@@ -10,7 +10,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 git_repository(
     name = "com_google_gtest",
     remote = "https://github.com/google/googletest",
-    tag = "v1.14.0",
+    tag = "v1.15.2",
 )
 
 load("@com_google_gtest//:googletest_deps.bzl", "googletest_deps")
