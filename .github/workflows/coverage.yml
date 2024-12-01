@@ -45,7 +45,7 @@ jobs:
         "${GITHUB_WORKSPACE}/bin/bazel" coverage --nocache_test_results //...
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./bazel-out/_coverage/_coverage_report.dat
