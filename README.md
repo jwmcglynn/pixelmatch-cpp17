@@ -60,7 +60,7 @@ Compares two images, writes the output diff and returns the number of mismatched
 
 ### Bazel
 
-#### Bazel 7.0.0 or newer (bzlmod)
+- Bazel 7.0.0 or newer is required for bzlmod.
 
 Add the following to your `MODULE.bazel` file:
 
@@ -70,18 +70,6 @@ git_override(
     module_name = "pixelmatch-cpp17",
     remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
     commit = "<latest commit hash>", # Ex: 2ab1b929916b97668698523a91e752413d01939c
-)
-```
-
-#### Bazel before 7.0.0 (legacy method)
-
-Add the following to your `WORKSPACE` file:
-
-```py
-git_repository(
-    name = "pixelmatch-cpp17",
-    branch = "main",
-    remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
 )
 ```
 
