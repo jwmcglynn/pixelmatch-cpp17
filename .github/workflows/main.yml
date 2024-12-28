@@ -62,7 +62,3 @@ jobs:
     - name: Test (C++20)
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang --config=cpp20 //...
-
-    - name: Build (no bzlmod)
-      run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" build --noenable_bzlmod --config=clang //...
