@@ -16,7 +16,7 @@ module(name = "pixelmatch-cpp17", repo_name = "pixelmatch-cpp17")
 #
 # Build dependencies
 #
-bazel_dep(name = "rules_cc", version = "0.0.15")
+bazel_dep(name = "rules_cc", version = "0.1.0")
 
 #
 # Test dependencies
