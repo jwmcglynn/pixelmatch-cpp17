@@ -3,7 +3,7 @@ A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level
 
 To use, add the following to your MODULE.bazel file:
 ```
-bazel_dep(name = "pixelmatch-cpp17", version = "0.0.0")
+bazel_dep(name = "pixelmatch-cpp17", version = "1.0.0")
 git_override(
     module_name = "pixelmatch-cpp17",
     remote = "https://github.com/jwmcglynn/pixematch-cpp17",
@@ -11,7 +11,7 @@ git_override(
 ```
 """
 
-module(name = "pixelmatch-cpp17", repo_name = "pixelmatch-cpp17")
+module(name = "pixelmatch-cpp17", repo_name = "pixelmatch-cpp17", version = "1.0.0")
 
 #
 # Build dependencies
