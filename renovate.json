@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "labels": [
     "bot"
@@ -11,10 +11,10 @@
   ],
   "packageRules": [
     {
-      "packagePatterns": [
-        "^com_google_absl$"
-      ],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": [
+        "/^com_google_absl$/"
+      ]
     }
   ]
 }
