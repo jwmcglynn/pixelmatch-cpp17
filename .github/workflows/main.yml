@@ -68,8 +68,15 @@ jobs:
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang --config=cpp20 //...
 
-    - name: Build & Test (CMake)
+    - name: Build (CMake)
       run: |
         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        cmake --build build
+        ctest --test-dir build --output-on-failure
+
+    - name: Build w/ Tests (CMake)
+      run: |
+        rm -rf build
+        cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DPIXELMATCH_BUILD_TESTS=ON
         cmake --build build
         ctest --test-dir build --output-on-failure
