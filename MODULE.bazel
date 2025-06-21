@@ -13,6 +13,8 @@ git_override(
 
 module(name = "pixelmatch-cpp17", repo_name = "pixelmatch-cpp17", version = "1.0.1")
 
+new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
+
 #
 # Build dependencies
 #
@@ -22,11 +24,11 @@ bazel_dep(name = "rules_cc", version = "0.1.1")
 # Test dependencies
 #
 bazel_dep(name = "googletest", repo_name = "com_google_gtest", version = "1.17.0", dev_dependency = True)
-bazel_dep(name = "stb", version = "0.0.0", dev_dependency = True)
-git_override(
-    module_name = "stb",
-    remote = "https://github.com/jwmcglynn/rules_stb",
-    commit = "075e5a470e31e46a7318cc308c79dba205a6b2eb",
+
+new_local_repository(
+    name = "stb",
+    build_file = "//third_party:BUILD.stb",
+    path = "third_party/stb",
 )
 
 #
