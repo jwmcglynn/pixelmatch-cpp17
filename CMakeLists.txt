@@ -7,13 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(PIXELMATCH_BUILD_TESTS "Enable building tests" OFF)
 
 # stb libraries for tests and image_utils. Not used in pixelmatch-cpp17 itself.
-add_library(stb_image STATIC third_party/stb/stb_image.cpp)
-target_include_directories(stb_image PUBLIC third_party)
-target_compile_options(stb_image PRIVATE -Wno-unused-function -Wno-self-assign)
+add_library(pixelmatch_third_party_stb_image STATIC third_party/stb/stb_image.cpp)
+target_include_directories(pixelmatch_third_party_stb_image PUBLIC third_party)
+target_compile_options(pixelmatch_third_party_stb_image PRIVATE -Wno-unused-function -Wno-self-assign)
 
-add_library(stb_image_write STATIC third_party/stb/stb_image_write.cpp)
-target_include_directories(stb_image_write PUBLIC third_party)
-target_compile_options(stb_image_write PRIVATE -Wno-unused-function -Wno-self-assign)
+add_library(pixelmatch_third_party_stb_image_write STATIC third_party/stb/stb_image_write.cpp)
+target_include_directories(pixelmatch_third_party_stb_image_write PUBLIC third_party)
+target_compile_options(pixelmatch_third_party_stb_image_write PRIVATE -Wno-unused-function -Wno-self-assign)
 
 # Main library
 add_library(pixelmatch-cpp17 src/pixelmatch/pixelmatch.cc)
@@ -22,7 +22,7 @@ target_include_directories(pixelmatch-cpp17 PUBLIC src)
 # image_utils helper library (uses stb to load and save images)
 add_library(image_utils src/pixelmatch/image_utils.cc)
 target_include_directories(image_utils PUBLIC src)
-target_link_libraries(image_utils PUBLIC pixelmatch-cpp17 stb_image stb_image_write)
+target_link_libraries(image_utils PUBLIC pixelmatch-cpp17 pixelmatch_third_party_stb_image pixelmatch_third_party_stb_image_write)
 
 if(PIXELMATCH_BUILD_TESTS)
 include(FetchContent)
