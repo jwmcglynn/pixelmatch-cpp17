@@ -95,6 +95,32 @@ In your test file, include pixelmatch with:
 #include <pixelmatch/pixelmatch.h>
 ```
 
+### CMake
+
+This repository also provides CMake build files.  A typical workflow is:
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build
+```
+
+To take a dependency on `pixelmatch-cpp17` with `FetchContent`, add the following
+to your project's `CMakeLists.txt`:
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+  pixelmatch-cpp17
+  GIT_REPOSITORY https://github.com/jwmcglynn/pixelmatch-cpp17.git
+  GIT_TAG <commit or tag>
+)
+FetchContent_MakeAvailable(pixelmatch-cpp17)
+
+target_link_libraries(your_target PRIVATE pixelmatch-cpp17)
+```
+
+
 ## Projects using pixelmatch-cpp17
 
 - Python bindings: https://github.com/cubao/pybind11_pixelmatch
@@ -103,3 +129,4 @@ In your test file, include pixelmatch with:
 
 - [Code Coverage](docs/code_coverage.md)
 - [Fuzz Testing](docs/fuzz_testing.md)
+

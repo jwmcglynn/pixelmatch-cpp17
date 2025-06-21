@@ -7,3 +7,4 @@ tools/coverage.sh
 ```
 
 This will generate an HTML report in the `coverage-report` directory.  To view the report, open `coverage-report/index.html` in a web browser.
+

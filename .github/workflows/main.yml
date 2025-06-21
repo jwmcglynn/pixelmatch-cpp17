@@ -62,3 +62,10 @@ jobs:
     - name: Test (C++20)
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang --config=cpp20 //...
+
+    - name: Build & Test (CMake)
+      run: |
+        sudo apt-get install -y cmake ninja-build
+        cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        cmake --build build
+        ctest --test-dir build --output-on-failure
