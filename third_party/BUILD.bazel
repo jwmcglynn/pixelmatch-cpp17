@@ -1,0 +1,6 @@
+exports_files(
+    # buildifier: keep sorted
+    [
+        "BUILD.stb",
+    ],
+)

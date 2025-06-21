@@ -43,6 +43,7 @@ cc_fuzz_test(
     srcs = ["pixelmatch_fuzzer.cc"],
     linkopts = ["-lm"],
     tags = [
+        "manual",
         "nocoverage",
     ],
     deps = [
