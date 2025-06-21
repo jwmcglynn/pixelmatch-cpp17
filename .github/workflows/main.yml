@@ -40,6 +40,11 @@ jobs:
         sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev
         echo "/usr/lib/llvm-16/bin" >> $GITHUB_PATH
 
+    - name: Install cmake
+      run: |
+        sudo apt-get install -y cmake ninja-build
+        echo "/usr/bin/cmake" >> $GITHUB_PATH
+
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
@@ -62,3 +67,16 @@ jobs:
     - name: Test (C++20)
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --config=clang --config=cpp20 //...
+
+    - name: Build (CMake)
+      run: |
+        cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        cmake --build build
+        ctest --test-dir build --output-on-failure
+
+    - name: Build w/ Tests (CMake)
+      run: |
+        rm -rf build
+        cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DPIXELMATCH_BUILD_TESTS=ON
+        cmake --build build
+        ctest --test-dir build --output-on-failure

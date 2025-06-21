@@ -73,26 +73,56 @@ git_override(
 )
 ```
 
-#### Adding the dependency
+### CMake
 
-Then add a dependency on `@pixelmatch-cpp17`:
-```py
-cc_test(
-    name = "my_test",
-    # ...
-    data = glob([
-      "testdata/*.png",
-    ]),
-    deps = [
-        "@pixelmatch-cpp17",
-        # ...
-    ],
+To take a dependency on `pixelmatch-cpp17` with `FetchContent`, add the following
+to your project's `CMakeLists.txt`:
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+  pixelmatch-cpp17
+  GIT_REPOSITORY https://github.com/jwmcglynn/pixelmatch-cpp17.git
+  GIT_TAG <commit or tag>
 )
+FetchContent_MakeAvailable(pixelmatch-cpp17)
+
+target_link_libraries(your_target PRIVATE pixelmatch-cpp17)
 ```
+
+#### Running the tests
+
+
+This repository also provides CMake build files.  A typical workflow is:
+
+```sh
+cmake -S . -B build -DPIXELMATCH_BUILD_TESTS=ON
+cmake --build build
+ctest --test-dir build
+```
+
+### Calling from C++
 
 In your test file, include pixelmatch with:
 ```cpp
 #include <pixelmatch/pixelmatch.h>
+```
+
+Then, you can use the `pixelmatch::pixelmatch` function.
+
+```cpp
+// Pass an options struct to configure the comparison. If not specified, defaults will be used.
+pixelmatch::Options options;
+options.threshold = 0.1f;
+
+// Load two images as RGBA-encoded byte arrays. The images must have the same dimensions and stride.
+const std::vector<uint8_t> img1 = ...;
+const std::vector<uint8_t> img2 = ...;
+// Output image will be saved in this buffer.
+std::vector<uint8_t> diffImage(img1.size());
+
+// Pass the image buffers and call with the width, height, and stride of the images.
+const int numDiffPixels = pixelmatch::pixelmatch(img1, img2, diffImage, width, height, stride, options);
 ```
 
 ## Projects using pixelmatch-cpp17
