@@ -65,12 +65,7 @@ Compares two images, writes the output diff and returns the number of mismatched
 Add the following to your `MODULE.bazel` file:
 
 ```py
-bazel_dep(name = "pixelmatch-cpp17", version = "0.0.0")
-git_override(
-    module_name = "pixelmatch-cpp17",
-    remote = "https://github.com/jwmcglynn/pixelmatch-cpp17",
-    commit = "<latest commit hash>", # Ex: 2ab1b929916b97668698523a91e752413d01939c
-)
+bazel_dep(name = "pixelmatch-cpp17", version = "1.0.3")
 ```
 
 ### CMake
