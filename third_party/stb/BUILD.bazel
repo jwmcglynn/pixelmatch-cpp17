@@ -1,4 +1,4 @@
-load("@pixelmatch-cpp17//third_party:stb.bzl", "stb_library")
+load("//third_party:stb.bzl", "stb_library")
 
 STB_COPTS = [
     "-Wno-unused-function",

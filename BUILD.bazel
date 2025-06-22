@@ -1,5 +1,11 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
+alias(
+    name = "pixelmatch",
+    actual = ":pixelmatch-cpp17",
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "pixelmatch-cpp17",
     srcs = [

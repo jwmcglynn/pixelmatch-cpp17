@@ -5,7 +5,7 @@ cc_library(
     name = "test_base",
     linkopts = ["-lm"],
     deps = [
-        "@com_google_gtest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
