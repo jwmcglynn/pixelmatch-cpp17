@@ -157,5 +157,5 @@ cc_library(
     name = "vorbis",
     defines = ["STB_VORBIS_HEADER_ONLY"],
     visibility = ["//visibility:public"],
-    deps = ["//:vorbis-private"],
+    deps = [":vorbis-private"],
 )
