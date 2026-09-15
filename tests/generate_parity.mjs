@@ -1,6 +1,6 @@
 // Generate deterministic expected results using the unmodified upstream reference.
 import fs from 'node:fs';
-import match from './upstream/pixelmatch.mjs';
+import match from '../third_party/pixelmatch/pixelmatch.mjs';
 
 let state = 0x91e10da5;
 function random(n) {
