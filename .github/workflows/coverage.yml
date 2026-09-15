@@ -18,37 +18,23 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
-    - name: Install bazelisk
-      run: |
-        mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        wget https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -O "${GITHUB_WORKSPACE}/bin/bazel"
-        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+    - name: Install coverage tools
+      run: sudo apt-get update && sudo apt-get install -y clang-18 llvm-18 cmake ninja-build
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v5
-      with:
-        java-version: 11
-        distribution: 'microsoft'
-
-    - name: Install clang-16
-      run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-16 main"
-        sudo apt-get update
-        sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev
-        echo "/usr/lib/llvm-16/bin" >> $GITHUB_PATH
-
-    - name: Generate coverage
-      run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" coverage --nocache_test_results //...
+    - name: Require complete library coverage
+      env:
+        CXX: clang++-18
+        LLVM_COV: llvm-cov-18
+        LLVM_PROFDATA: llvm-profdata-18
+      run: tools/coverage_llvm.sh "${RUNNER_TEMP}/pixelmatch-coverage"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./bazel-out/_coverage/_coverage_report.dat
+        files: ${{ runner.temp }}/pixelmatch-coverage/coverage.dat
         flags: unittests
         fail_ci_if_error: true
         verbose: true

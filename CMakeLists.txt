@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(pixelmatch-cpp17 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(PIXELMATCH_BUILD_TESTS "Enable building tests" OFF)
+option(PIXELMATCH_BUILD_ALLOCATION_TESTS "Enable isolated allocation-failure tests" OFF)
 
 # stb libraries for tests and image_utils. Not used in pixelmatch-cpp17 itself.
 add_library(pixelmatch_third_party_stb_image STATIC third_party/stb/stb_image.cpp)
@@ -46,5 +49,12 @@ add_executable(image_utils_tests tests/image_utils_tests.cc)
 target_link_libraries(image_utils_tests PRIVATE test_base image_utils)
 add_test(NAME image_utils_tests COMMAND image_utils_tests)
 set_tests_properties(image_utils_tests PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# This executable replaces global allocation operators. Keep it isolated and opt-in.
+if(PIXELMATCH_BUILD_ALLOCATION_TESTS)
+add_executable(pixelmatch_allocation_tests tests/pixelmatch_allocation_tests.cc)
+target_link_libraries(pixelmatch_allocation_tests PRIVATE pixelmatch-cpp17)
+add_test(NAME pixelmatch_allocation_tests COMMAND pixelmatch_allocation_tests)
+endif()
 
 endif() # PIXELMATCH_BUILD_TESTS
