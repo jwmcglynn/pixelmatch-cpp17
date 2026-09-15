@@ -2,7 +2,7 @@
 // pngjs 7.0.0 is needed only to regenerate PNG fixtures, never to run the C++ tests.
 import fs from 'node:fs';
 import {pathToFileURL} from 'node:url';
-import match from './upstream/pixelmatch.mjs';
+import match from '../third_party/pixelmatch/pixelmatch.mjs';
 const {PNG} = await import(pathToFileURL(process.argv[2]));
 const cases = [
     ['1a', '1b', '1diff', {threshold: 0.05}],
