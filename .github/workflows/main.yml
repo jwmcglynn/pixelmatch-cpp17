@@ -24,7 +24,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install bazelisk
       run: |
@@ -38,12 +38,12 @@ jobs:
         sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-16 main"
         sudo apt-get update
         sudo apt-get install -y clang-16 libc++-16-dev libc++abi-16-dev
-        echo "/usr/lib/llvm-16/bin" >> $GITHUB_PATH
+        echo "/usr/lib/llvm-16/bin" >> "$GITHUB_PATH"
 
     - name: Install cmake
       run: |
         sudo apt-get install -y cmake ninja-build
-        echo "/usr/bin/cmake" >> $GITHUB_PATH
+        echo "/usr/bin/cmake" >> "$GITHUB_PATH"
 
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session
