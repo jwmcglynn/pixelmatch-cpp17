@@ -16,6 +16,7 @@ cc_test(
     ],
     data = glob([
         "testdata/*.png",
+        "testdata/*.txt",
     ]),
     deps = [
         ":test_base",
@@ -50,4 +51,12 @@ cc_fuzz_test(
         "//:pixelmatch-cpp17",
         "//third_party/fuzzer:fuzzed_data_provider",
     ],
+)
+
+# Isolated allocation-failure injection; never linked into the ordinary tests or fuzzer.
+cc_test(
+    name = "pixelmatch_allocation_tests",
+    srcs = ["pixelmatch_allocation_tests.cc"],
+    tags = ["manual"],
+    deps = ["//:pixelmatch-cpp17"],
 )
