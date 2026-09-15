@@ -1,101 +1,116 @@
 # pixelmatch-cpp17
 
-[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml) [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC) [![codecov](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17/branch/main/graph/badge.svg?token=0XMUH3F0RD)](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17)
+[![Build Status](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/jwmcglynn/pixelmatch-cpp17/actions/workflows/main.yml) [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC) [![codecov](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17/branch/main/graph/badge.svg?token=0XMUH3F0RD)](https://codecov.io/gh/jwmcglynn/pixelmatch-cpp17) [![CodeFactor](https://www.codefactor.io/repository/github/jwmcglynn/pixelmatch-cpp17/badge)](https://www.codefactor.io/repository/github/jwmcglynn/pixelmatch-cpp17)
 
-A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level image comparison library.
+A small C++17 port of [pixelmatch](https://github.com/mapbox/pixelmatch) for comparing images pixel by pixel.
 
-Features accurate **anti-aliased pixels detection** and **perceptual color difference metrics**.
-
-Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp17 has **no external runtime dependencies**, operating on RGBA-encoded buffers.
-
+The core comparison algorithm is about **340 lines of C++**, excluding comments and blank lines.
+It works directly on RGBA buffers, detects anti-aliased edges, and measures perceptual color differences
+without external runtime dependencies. Bazel and CMake builds support C++17 and C++20.
 
 ```cpp
 #include <pixelmatch/pixelmatch.h>
+#include <vector>
 
-pixelmatch::Options options;
-options.threshold = 0.1f;
-
+// Load equally sized RGBA images with the same row stride.
 const std::vector<uint8_t> img1 = ...;
 const std::vector<uint8_t> img2 = ...;
 std::vector<uint8_t> diffImage(img1.size());
 
-const int numDiffPixels = pixelmatch::pixelmatch(img1, img2, diffImage, width, height, stride, options);
+pixelmatch::Options options;
+options.threshold = 0.1f;
+
+const int mismatches = pixelmatch::pixelmatch(
+    img1, img2, diffImage, width, height, strideInPixels, options);
 ```
 
-Compared to [mapbox/pixelmatch-cpp](https://github.com/mapbox/pixelmatch-cpp), pixelmatch-cpp17 ports the latest features from the JavaScript library, and is built with production-grade practices, including thorough test coverage and fuzz-testing.  Build files are included for Bazel and CMake, but contributions for other build systems are welcome.
-
-Implements ideas from the following papers:
-
-- [A perceptual color space for image processing](https://bottosson.github.io/posts/oklab/) (2020, Björn Ottosson) — OKLab, with toe-corrected lightness and the HyAB distance metric.
-- [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
+The implementation combines [OKLab](https://bottosson.github.io/posts/oklab/) color differences
+with toe-corrected lightness and the HyAB distance metric. Anti-aliasing detection is based on
+[Vytautas Vyšniauskas's intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector).
 
 ## Example output
 
-| expected | actual | diff |
+| Expected | Actual | Diff |
 | --- | --- | --- |
-| ![](tests/testdata/4a.png) | ![](tests/testdata/4b.png) | ![1diff](tests/testdata/4diff.png) |
-| ![](tests/testdata/3a.png) | ![](tests/testdata/3b.png) | ![1diff](tests/testdata/3diff.png) |
-| ![](tests/testdata/6a.png) | ![](tests/testdata/6b.png) | ![1diff](tests/testdata/6diff.png) |
+| ![Expected image 4](tests/testdata/4a.png) | ![Actual image 4](tests/testdata/4b.png) | ![Diff for image 4](tests/testdata/4diff.png) |
+| ![Expected image 3](tests/testdata/3a.png) | ![Actual image 3](tests/testdata/3b.png) | ![Diff for image 3](tests/testdata/3diff.png) |
+| ![Expected image 6](tests/testdata/6a.png) | ![Actual image 6](tests/testdata/6b.png) | ![Diff for image 6](tests/testdata/6diff.png) |
 
 ## API
 
-### pixelmatch(img1, img2, output, width, height, strideInPixels[, options])
+```cpp
+int pixelmatch::pixelmatch(
+    pixelmatch::span<const uint8_t> img1,
+    pixelmatch::span<const uint8_t> img2,
+    pixelmatch::span<uint8_t> output,
+    int width, int height, size_t strideInPixels,
+    pixelmatch::Options options = {}) noexcept;
+```
 
-- `img1`, `img2` — Image data of the images to compare, as a RGBA-encoded byte array. **Note:** image dimensions must be equal.
-- `output` — Image data to write the diff to, or `{}` (an empty span) if you don't need a diff image.
-- `width`, `height` — Width and height of the images. Note that _all three images_ need to have the same dimensions.
-- `strideInPixels` — Stride of the images. Note that _all three images_ need to have the same stride.
-- `options` is a struct with the following fields:
-  - `threshold` — Matching threshold, ranges from `0.0f` to `1.0f`. Smaller values make the comparison more sensitive. `0.1` by default.
-  - `includeAA` — If `true`, disables detecting and ignoring anti-aliased pixels. `false` by default.
-  - `alpha` — Blending factor of unchanged pixels in the diff output. Ranges from `0` for pure white to `1` for original brightness. `0.1` by default.
-  - `aaColor` — The color of anti-aliased pixels in the diff output as an RGBA color. `(255, 255, 0, 255)` by default.
-  - `diffColor` — The color of differing pixels in the diff output as an RGBA color `(255, 0, 0, 255)` by default.
-  - `diffColorAlt` — An alternative color to use for dark on light differences to differentiate between "added" and "removed" parts. If not provided, all differing pixels use the color specified by `diffColor`. `std::nullopt` by default.
-  - `diffMask` — Draw the diff over a transparent background (a mask), rather than over the original image. Will not draw anti-aliased pixels (if detected).
-  - `checkerboard` — Blend transparent pixels over a checkerboard (`true`, default), or white (`false`).
-  - `windowSize` — Return the maximum mismatch count in any square window. Defaults to infinity (total count). Finite sizes are floored and clamped to `[1, min(width, height)]`; NaN and infinities use the total count. The diff image still covers the whole image.
+Compares two images, optionally writes a diff image, and returns the number of mismatched pixels.
+When `windowSize` is finite, it returns the largest mismatch count in any square window.
 
-Compares two images, writes the output diff and returns the mismatch count (or the largest local count when `windowSize` is finite).
+- `img1`, `img2`: RGBA byte buffers with unpremultiplied alpha. Each must contain `strideInPixels * height * 4` bytes.
+- `output`: A writable buffer of the same size, or `{}` to skip the diff image. Row padding is left untouched.
+- `width`, `height`: Positive image dimensions in pixels. The total pixel count must fit in an `int`.
+- `strideInPixels`: The number of pixels between the starts of consecutive rows, including padding. It must be at least `width` and must be the same for all buffers.
+- `options`: An optional `pixelmatch::Options` value with the fields below.
+
+Invalid dimensions, stride, or buffer sizes trigger assertions in debug builds and return `-1` in release builds.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `threshold` | `0.1f` | Matching threshold from `0.0f` to `1.0f`. Lower values detect smaller differences. |
+| `includeAA` | `false` | Set to `true` to count anti-aliased pixels as differences and skip anti-aliasing detection. |
+| `alpha` | `0.1f` | Opacity of the grayscale background in the diff: `0` gives white; `1` preserves the input's brightness and alpha contribution. |
+| `aaColor` | `{255, 255, 0, 255}` | RGBA color for detected anti-aliased pixels. |
+| `diffColor` | `{255, 0, 0, 255}` | RGBA color for mismatched pixels. |
+| `diffColorAlt` | `std::nullopt` | Optional RGBA color for pixels that are darker in `img2`, to distinguish added and removed content. Otherwise, uses `diffColor`. |
+| `diffMask` | `false` | Write only mismatched pixels. Other output pixels remain untouched; zero-initialize the output for a transparent mask. |
+| `checkerboard` | `true` | Compare transparent pixels over a checkerboard. Set to `false` to use white. |
+| `windowSize` | Positive infinity | Return the largest mismatch count in an N×N window. Finite values are floored and clamped to `[1, min(width, height)]`. NaN and infinities use the total count. |
+
+Windowed comparisons still produce a diff image for the whole image. They use
+O(width × height + width) scratch storage; the default comparison allocates none.
+If scratch allocation fails, the function returns `-1` and leaves output unchanged.
 
 ## Upstream compatibility
 
-The comparison algorithm tracks [JavaScript pixelmatch main at `b2800051`](https://github.com/mapbox/pixelmatch/tree/b2800051f2b79d18cf27e51cd240cafd38cfb0ba),
-including unreleased toe-corrected OKLab HyAB color differences, checkerboard transparency,
-and sliding-window counts. This is newer than the JavaScript v7.2.0 release.
+This implementation tracks [JavaScript pixelmatch main at `b2800051`](https://github.com/mapbox/pixelmatch/tree/b2800051f2b79d18cf27e51cd240cafd38cfb0ba),
+including unreleased OKLab and sliding-window changes beyond JavaScript v7.2.0.
 
-Existing C++ calls, `span` types, `Color`, and the original `Options` field types and order
-are preserved. New options are appended, so existing aggregate initializers still compile.
-Stride support, RGBA diff colors (including their alpha channel), empty output spans,
-`noexcept`, and debug assertions/release `-1` input errors remain supported.
-Recompile dependent code when upgrading: the expanded `Options` struct changes its binary layout.
+### Updating existing C++ code
 
-Results intentionally follow the new upstream algorithm: old YIQ thresholds and golden images
-may need adjustment. `checkerboard = false` selects white-background comparison; it does not
-restore the old YIQ metric. The existing `float` threshold and alpha fields retain their precision;
-reference tests pass those exact float values to JavaScript. Windowed comparisons allocate
-O(width × height + width) scratch storage; the default comparison allocates none.
-If scratch allocation fails, the function returns `-1` and leaves output unchanged.
-For very large images, checkerboard offsets use unsigned arithmetic: this avoids the negative
-background channels produced by JavaScript's signed 32-bit coercion beyond roughly 3.47 GB.
-That overflow behavior is intentionally not reproduced.
+Existing calls, `span` types, `Color`, and the original `Options` field types and order are preserved.
+New options are appended, so existing aggregate initializers still compile. Strided buffers,
+RGBA diff colors, empty output spans, and `noexcept` remain supported.
+**Rebuild dependent code when upgrading:** the expanded `Options` struct changes its binary layout.
 
-## Usage
+The new color metric can change mismatch counts, so existing YIQ thresholds and expected diff images
+may need adjustment. Setting `checkerboard = false` selects a white background; it does not restore YIQ.
+
+### Differences from JavaScript
+
+- `threshold` and `alpha` keep their existing C++ `float` types. Reference tests pass those exact values to JavaScript.
+- The C++ API supports row padding and RGBA output colors, including custom alpha values.
+- Checkerboard offsets use unsigned arithmetic to avoid the negative background channels caused by JavaScript's signed 32-bit coercion beyond roughly 3.47 GB.
+
+## Installation
 
 ### Bazel
 
-- Bazel 7.0.0 or newer is required for bzlmod.
+Add the published release to your `MODULE.bazel` file:
 
-Add the following to your `MODULE.bazel` file:
-
-```py
+```python
 bazel_dep(name = "pixelmatch-cpp17", version = "1.0.3")
 ```
 
+Version 1.0.3 does not include the unreleased comparison changes described above.
+For repository builds, use the Bazel version pinned in [`.bazelversion`](.bazelversion).
+
 ### CMake
 
-To take a dependency on `pixelmatch-cpp17` with `FetchContent`, add the following
-to your project's `CMakeLists.txt`:
+Use `FetchContent` and select the commit or tag you want to build:
 
 ```cmake
 include(FetchContent)
@@ -109,46 +124,25 @@ FetchContent_MakeAvailable(pixelmatch-cpp17)
 target_link_libraries(your_target PRIVATE pixelmatch-cpp17)
 ```
 
-#### Running the tests
+## Tests and coverage
 
-
-This repository also provides CMake build files.  A typical workflow is:
+To build and run the tests with CMake:
 
 ```sh
 cmake -S . -B build -DPIXELMATCH_BUILD_TESTS=ON
 cmake --build build
-ctest --test-dir build
+ctest --test-dir build --output-on-failure
 ```
 
-### Calling from C++
+CMake defaults to C++17. Add `-DCMAKE_CXX_STANDARD=20` to test with C++20 and `std::span`.
 
-In your test file, include pixelmatch with:
-```cpp
-#include <pixelmatch/pixelmatch.h>
-```
+The test suite includes upstream golden images, deterministic comparisons against the pinned JavaScript
+implementation, API compatibility tests, and edge cases. CI requires **100% line, region, function,
+and branch coverage** across the library implementation and the C++17 span polyfill.
 
-Then, you can use the `pixelmatch::pixelmatch` function.
-
-```cpp
-// Pass an options struct to configure the comparison. If not specified, defaults will be used.
-pixelmatch::Options options;
-options.threshold = 0.1f;
-
-// Load two images as RGBA-encoded byte arrays. The images must have the same dimensions and stride.
-const std::vector<uint8_t> img1 = ...;
-const std::vector<uint8_t> img2 = ...;
-// Output image will be saved in this buffer.
-std::vector<uint8_t> diffImage(img1.size());
-
-// Pass the image buffers and call with the width, height, and stride of the images.
-const int numDiffPixels = pixelmatch::pixelmatch(img1, img2, diffImage, width, height, stride, options);
-```
+- [Code coverage](docs/code_coverage.md)
+- [Fuzz testing](docs/fuzz_testing.md)
 
 ## Projects using pixelmatch-cpp17
 
-- Python bindings: https://github.com/cubao/pybind11_pixelmatch
-
-## Documentation
-
-- [Code Coverage](docs/code_coverage.md)
-- [Fuzz Testing](docs/fuzz_testing.md)
+- [Python bindings](https://github.com/cubao/pybind11_pixelmatch)
