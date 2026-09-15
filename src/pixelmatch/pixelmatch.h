@@ -97,7 +97,8 @@ struct Options {
  * @param options Configuration options for the pixel comparison algorithm.
  * @return Number of different pixels, or the maximum count in a square window when windowSize
  *         is finite. Window size is floored and clamped to [1, min(width, height)]. If a
- * precondition fails, returns -1.
+ *         precondition fails or window scratch allocation fails, returns -1. Allocation failure
+ *         leaves output unchanged.
  */
 int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
                int height, size_t strideInPixels, Options options = Options()) noexcept;

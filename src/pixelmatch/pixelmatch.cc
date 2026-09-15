@@ -7,7 +7,8 @@
 #include <cmath>
 #include <cstring>  // For memcmp.
 #include <limits>
-#include <vector>
+#include <memory>
+#include <new>
 
 namespace pixelmatch {
 
@@ -155,8 +156,8 @@ double brightnessDelta(span<const uint8_t> img, size_t pos1, size_t pos2) noexce
 }
 
 // Count each square window in O(width * height), using O(width) column sums.
-int maxWindowDiff(const std::vector<uint8_t>& mask, int width, int height, int size) {
-  std::vector<int> columns(width, 0);
+int maxWindowDiff(span<const uint8_t> mask, span<int> columns, int width, int height,
+                  int size) noexcept {
   int maximum = 0;
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -357,7 +358,20 @@ int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t>
 
   int diff = 0;
   const bool windowed = std::isfinite(options.windowSize);
-  std::vector<uint8_t> mask(windowed ? size_t(width) * height : 0, 0);
+  const size_t pixels = size_t(width) * height;
+  std::unique_ptr<uint8_t[]> mask;
+  std::unique_ptr<int[]> columns;
+  if (windowed) {
+    // Allocate both buffers before touching output, preserving noexcept on allocation failure.
+    mask.reset(new (std::nothrow) uint8_t[pixels]{});
+    if (!mask) {
+      return -1;
+    }
+    columns.reset(new (std::nothrow) int[width]{});
+    if (!columns) {
+      return -1;
+    }
+  }
 
   // Compare each pixel of one image against the other one.
   for (int y = 0; y < height; ++y) {
@@ -403,7 +417,7 @@ int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t>
   if (windowed) {
     const int size = static_cast<int>(
         std::min(std::max(std::floor(options.windowSize), 1.0), double(std::min(width, height))));
-    return maxWindowDiff(mask, width, height, size);
+    return maxWindowDiff({mask.get(), pixels}, {columns.get(), size_t(width)}, width, height, size);
   }
   return diff;
 }

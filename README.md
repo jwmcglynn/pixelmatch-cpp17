@@ -75,6 +75,7 @@ may need adjustment. `checkerboard = false` selects white-background comparison;
 restore the old YIQ metric. The existing `float` threshold and alpha fields retain their precision;
 reference tests pass those exact float values to JavaScript. Windowed comparisons allocate
 O(width × height + width) scratch storage; the default comparison allocates none.
+If scratch allocation fails, the function returns `-1` and leaves output unchanged.
 For very large images, checkerboard offsets use unsigned arithmetic: this avoids the negative
 background channels produced by JavaScript's signed 32-bit coercion beyond roughly 3.47 GB.
 That overflow behavior is intentionally not reproduced.
