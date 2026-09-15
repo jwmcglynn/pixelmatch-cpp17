@@ -8,7 +8,7 @@ build_dir="$(cd "$build_dir" && pwd)"
 profile_dir="$(mktemp -d "$build_dir/profiles.XXXXXX")"
 
 cmake -S "$repo_dir" -B "$build_dir" -G Ninja \
-  -DPIXELMATCH_BUILD_TESTS=ON -DCMAKE_CXX_STANDARD=17 \
+  -DPIXELMATCH_BUILD_TESTS=ON -DPIXELMATCH_BUILD_ALLOCATION_TESTS=ON -DCMAKE_CXX_STANDARD=17 \
   -DCMAKE_CXX_COMPILER="${CXX:-clang++}" -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_FLAGS='-fprofile-instr-generate -fcoverage-mapping -ffp-contract=off' \
   -DCMAKE_CXX_FLAGS_RELEASE='-O0 -DNDEBUG'
@@ -18,6 +18,7 @@ LLVM_PROFILE_FILE="$profile_dir/%p.profraw" TMPDIR="$profile_dir" \
 "${LLVM_PROFDATA:-llvm-profdata}" merge -sparse "$profile_dir"/*.profraw \
   -o "$build_dir/coverage.profdata"
 coverage_args=("$build_dir/pixelmatch_tests" -object "$build_dir/image_utils_tests"
+  -object "$build_dir/pixelmatch_allocation_tests"
   -instr-profile "$build_dir/coverage.profdata" "$repo_dir/src/pixelmatch/")
 "${LLVM_COV:-llvm-cov}" report "${coverage_args[@]}"
 "${LLVM_COV:-llvm-cov}" export "${coverage_args[@]}" > "$build_dir/coverage.json"

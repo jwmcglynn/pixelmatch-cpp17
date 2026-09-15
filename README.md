@@ -4,7 +4,7 @@
 
 A small C++17 port of [pixelmatch](https://github.com/mapbox/pixelmatch) for comparing images pixel by pixel.
 
-The core comparison algorithm is about **330 lines of C++**, excluding comments and blank lines.
+The core comparison algorithm is about **340 lines of C++**, excluding comments and blank lines.
 It works directly on RGBA buffers, detects anti-aliased edges, and measures perceptual color differences
 without external runtime dependencies. Bazel and CMake builds support C++17 and C++20.
 
@@ -72,6 +72,7 @@ Invalid dimensions, stride, or buffer sizes trigger assertions in debug builds a
 
 Windowed comparisons still produce a diff image for the whole image. They use
 O(width × height + width) scratch storage; the default comparison allocates none.
+If scratch allocation fails, the function returns `-1` and leaves output unchanged.
 
 ## Upstream compatibility
 
