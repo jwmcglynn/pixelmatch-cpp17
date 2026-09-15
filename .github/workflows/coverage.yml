@@ -31,7 +31,7 @@ jobs:
       run: tools/coverage_llvm.sh "${RUNNER_TEMP}/pixelmatch-coverage"
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ runner.temp }}/pixelmatch-coverage/coverage.dat
