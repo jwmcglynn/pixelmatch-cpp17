@@ -1,7 +1,11 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <optional>
+#include <type_traits>
+#include <utility>
 
 #if __cplusplus > 201703L
 #include <span>
@@ -73,23 +77,27 @@ struct Options {
   std::optional<Color> diffColorAlt =
       std::nullopt;  //!< Whether to detect dark on light differences between img1 and img2 and set
                      //!< an alternative color to differentiate between the two
-  bool diffMask = false;  //!< Draw the diff over a transparent background (a mask)
+  bool diffMask = false;     //!< Draw the diff over a transparent background (a mask)
+  bool checkerboard = true;  //!< Blend transparency against a checkerboard; false uses white
+  double windowSize =
+      std::numeric_limits<double>::infinity();  //!< Max differences in an NxN window
 };
 
 /**
  * Compares two images, optionally detecting anti-aliased pixels and using perceptual color
  * difference metrics.
  *
- * @param img1 First image, as a raw RGBA-ordered pixel buffer. Must be strideInElements * height *
+ * @param img1 First image, as a raw RGBA-ordered pixel buffer. Must be strideInPixels * height *
  *              4 bytes long. Assumes that alpha is unpremultiplied.
  * @param img2 Second image, must be the same size as img1.
  * @param output (Optional) Output image buffer, of the same size as img1, or an empty span.
- * @param width in pixels, must be > 0.
+ * @param width in pixels, must be > 0. The pixel count must fit in int.
  * @param height in pixels, must be > 0.
- * @param strideInElements Stride of the image, in pixels, must be >= width.
+ * @param strideInPixels Stride of the image, in pixels, must be >= width.
  * @param options Configuration options for the pixel comparison algorithm.
- * @return 0 if the images are identical or the number of different pixels if not. If a precondition
- *         fails, returns -1.
+ * @return Number of different pixels, or the maximum count in a square window when windowSize
+ *         is finite. Window size is floored and clamped to [1, min(width, height)]. If a
+ * precondition fails, returns -1.
  */
 int pixelmatch(span<const uint8_t> img1, span<const uint8_t> img2, span<uint8_t> output, int width,
                int height, size_t strideInPixels, Options options = Options()) noexcept;

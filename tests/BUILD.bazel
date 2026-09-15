@@ -16,6 +16,7 @@ cc_test(
     ],
     data = glob([
         "testdata/*.png",
+        "testdata/*.txt",
     ]),
     deps = [
         ":test_base",

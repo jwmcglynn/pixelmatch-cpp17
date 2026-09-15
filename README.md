@@ -6,7 +6,7 @@ A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level
 
 Features accurate **anti-aliased pixels detection** and **perceptual color difference metrics**.
 
-Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp17 is around **300 lines of code**, and has **no dependencies**, operating on RGBA-encoded buffers.
+Based on [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).  pixelmatch-cpp17 has **no external runtime dependencies**, operating on RGBA-encoded buffers.
 
 
 ```cpp
@@ -26,7 +26,7 @@ Compared to [mapbox/pixelmatch-cpp](https://github.com/mapbox/pixelmatch-cpp), p
 
 Implements ideas from the following papers:
 
-- [Measuring perceived color difference using YIQ NTSC transmission color space in mobile applications](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf) (2010, Yuriy Kotsarenko, Fernando Ramos)
+- [A perceptual color space for image processing](https://bottosson.github.io/posts/oklab/) (2020, Björn Ottosson) — OKLab, with toe-corrected lightness and the HyAB distance metric.
 - [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
 
 ## Example output
@@ -42,7 +42,7 @@ Implements ideas from the following papers:
 ### pixelmatch(img1, img2, output, width, height, strideInPixels[, options])
 
 - `img1`, `img2` — Image data of the images to compare, as a RGBA-encoded byte array. **Note:** image dimensions must be equal.
-- `output` — Image data to write the diff to, or `std::nullopt` if you don't need a diff image.
+- `output` — Image data to write the diff to, or `{}` (an empty span) if you don't need a diff image.
 - `width`, `height` — Width and height of the images. Note that _all three images_ need to have the same dimensions.
 - `strideInPixels` — Stride of the images. Note that _all three images_ need to have the same stride.
 - `options` is a struct with the following fields:
@@ -53,8 +53,31 @@ Implements ideas from the following papers:
   - `diffColor` — The color of differing pixels in the diff output as an RGBA color `(255, 0, 0, 255)` by default.
   - `diffColorAlt` — An alternative color to use for dark on light differences to differentiate between "added" and "removed" parts. If not provided, all differing pixels use the color specified by `diffColor`. `std::nullopt` by default.
   - `diffMask` — Draw the diff over a transparent background (a mask), rather than over the original image. Will not draw anti-aliased pixels (if detected).
+  - `checkerboard` — Blend transparent pixels over a checkerboard (`true`, default), or white (`false`).
+  - `windowSize` — Return the maximum mismatch count in any square window. Defaults to infinity (total count). Finite sizes are floored and clamped to `[1, min(width, height)]`; NaN and infinities use the total count. The diff image still covers the whole image.
 
-Compares two images, writes the output diff and returns the number of mismatched pixels.
+Compares two images, writes the output diff and returns the mismatch count (or the largest local count when `windowSize` is finite).
+
+## Upstream compatibility
+
+The comparison algorithm tracks [JavaScript pixelmatch main at `b2800051`](https://github.com/mapbox/pixelmatch/tree/b2800051f2b79d18cf27e51cd240cafd38cfb0ba),
+including unreleased toe-corrected OKLab HyAB color differences, checkerboard transparency,
+and sliding-window counts. This is newer than the JavaScript v7.2.0 release.
+
+Existing C++ calls, `span` types, `Color`, and the original `Options` field types and order
+are preserved. New options are appended, so existing aggregate initializers still compile.
+Stride support, RGBA diff colors (including their alpha channel), empty output spans,
+`noexcept`, and debug assertions/release `-1` input errors remain supported.
+Recompile dependent code when upgrading: the expanded `Options` struct changes its binary layout.
+
+Results intentionally follow the new upstream algorithm: old YIQ thresholds and golden images
+may need adjustment. `checkerboard = false` selects white-background comparison; it does not
+restore the old YIQ metric. The existing `float` threshold and alpha fields retain their precision;
+reference tests pass those exact float values to JavaScript. Windowed comparisons allocate
+O(width × height + width) scratch storage; the default comparison allocates none.
+For very large images, checkerboard offsets use unsigned arithmetic: this avoids the negative
+background channels produced by JavaScript's signed 32-bit coercion beyond roughly 3.47 GB.
+That overflow behavior is intentionally not reproduced.
 
 ## Usage
 

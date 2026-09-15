@@ -11,15 +11,19 @@ Color createColor(FuzzedDataProvider& provider) {
 
 Options createOptions(FuzzedDataProvider& provider) {
   Options options;
-  options.threshold = provider.ConsumeFloatingPoint<float>();
+  options.threshold = provider.ConsumeFloatingPointInRange<float>(0.0f, 1.0f);
   options.includeAA = provider.ConsumeBool();
-  options.alpha = provider.ConsumeFloatingPoint<float>();
+  options.alpha = provider.ConsumeFloatingPointInRange<float>(0.0f, 1.0f);
   options.aaColor = createColor(provider);
   options.diffColor = createColor(provider);
   if (provider.ConsumeBool()) {
     options.diffColorAlt = createColor(provider);
   }
   options.diffMask = provider.ConsumeBool();
+  options.checkerboard = provider.ConsumeBool();
+  if (provider.ConsumeBool()) {
+    options.windowSize = provider.ConsumeFloatingPointInRange<double>(-10, 200);
+  }
   return options;
 }
 

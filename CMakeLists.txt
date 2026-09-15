@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(pixelmatch-cpp17 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(PIXELMATCH_BUILD_TESTS "Enable building tests" OFF)
