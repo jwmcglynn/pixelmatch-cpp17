@@ -1,5 +1,5 @@
 {
   "integrity": "",
   "strip_prefix": "pixelmatch-cpp17-{VERSION}",
-  "url": "https://github.com/jwmcglynn/pixelmatch-cpp17/archive/refs/tags/{TAG}.tar.gz"
+  "url": "https://github.com/jwmcglynn/pixelmatch-cpp17/releases/download/{TAG}/pixelmatch-cpp17-{VERSION}.tar.gz"
 }

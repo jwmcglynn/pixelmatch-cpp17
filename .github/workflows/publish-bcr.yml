@@ -22,6 +22,9 @@ jobs:
   validate:
     if: github.repository == 'jwmcglynn/pixelmatch-cpp17'
     runs-on: ubuntu-24.04
+    outputs:
+      ci_run_id: ${{ steps.release-ci.outputs.run_id }}
+      ci_artifact: ${{ steps.release-ci.outputs.artifact }}
     env:
       TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
       GH_TOKEN: ${{ github.token }}
@@ -41,6 +44,7 @@ jobs:
           persist-credentials: false
 
       - name: Require verified release source from main
+        id: release-ci
         run: |
           git merge-base --is-ancestor HEAD origin/main
           version="${TAG_NAME#v}"
@@ -49,13 +53,21 @@ jobs:
             "project(pixelmatch-cpp17 VERSION ${version} LANGUAGES CXX)" CMakeLists.txt
           gh run list --repo "$GITHUB_REPOSITORY" --branch main --event push \
             --commit "$(git rev-parse HEAD)" --limit 30 \
-            --json name,status,conclusion > runs.json
+            --json name,status,conclusion,databaseId > runs.json
           jq --exit-status '
             ([.[] | select(.name == "CI")][0] |
               .status == "completed" and .conclusion == "success") and
             ([.[] | select(.name == "Coverage")][0] |
               .status == "completed" and .conclusion == "success")
           ' runs.json
+
+          run_id=$(jq --raw-output '[.[] | select(.name == "CI")][0].databaseId' runs.json)
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" > ci-run.json
+          jq --exit-status --arg sha "$(git rev-parse HEAD)" \
+            '.head_sha == $sha and .status == "completed" and .conclusion == "success"' ci-run.json
+          attempt=$(jq --raw-output '.run_attempt' ci-run.json)
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "artifact=bcr-release-source-${attempt}" >> "$GITHUB_OUTPUT"
 
       - name: Preserve any existing registry submission branch
         run: |
@@ -65,8 +77,39 @@ jobs:
           jq --exit-status --arg ref "refs/heads/${branch}" \
             'all(.[]; .ref != $ref)' refs.json
 
-  publish:
+  upload-source:
     needs: validate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
+      CI_RUN_ID: ${{ needs.validate.outputs.ci_run_id }}
+      CI_ARTIFACT: ${{ needs.validate.outputs.ci_artifact }}
+    steps:
+      - name: Download the source archive tested by CI
+        run: |
+          gh run download "$CI_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "$CI_ARTIFACT" --dir artifacts
+
+      - name: Publish the tested bytes as a stable release asset
+        run: |
+          archive="pixelmatch-cpp17-${TAG_NAME#v}.tar.gz"
+          test -f "artifacts/${archive}"
+          gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --json assets > release.json
+          exists=$(jq --raw-output --arg name "$archive" \
+            'any(.assets[]; .name == $name)' release.json)
+          if [[ "$exists" == false ]]; then
+            gh release upload "$TAG_NAME" "artifacts/${archive}" --repo "$GITHUB_REPOSITORY"
+          fi
+          gh release download "$TAG_NAME" --repo "$GITHUB_REPOSITORY" \
+            --pattern "$archive" --dir published
+          cmp "artifacts/${archive}" "published/${archive}"
+
+  publish:
+    needs: [validate, upload-source]
     uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@ca23149e55cd4db07a6bcce69c02dea314c5a357 # v1.5.0
     with:
       tag_name: ${{ github.event.release.tag_name || inputs.tag_name }}

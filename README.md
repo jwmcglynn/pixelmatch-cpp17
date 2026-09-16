@@ -166,5 +166,11 @@ The workflow can be dispatched manually for an existing release if needed. It re
 an existing submission branch in the registry fork; inspect that branch or PR before recovering a
 partially completed submission. Creating a tag alone does not submit anything to BCR.
 
-CI generates a registry entry from the source archive and tests it as a separate C++17/C++20 consumer.
-The test registry uses a local archive URL; the published template always uses the GitHub release tag.
+CI generates a registry entry from the source archive, tests it as a separate C++17/C++20 consumer,
+and preserves the tested archive as a workflow artifact. Publishing downloads that exact archive from
+the successful main CI run and uploads it as `pixelmatch-cpp17-X.Y.Z.tar.gz`. An existing release asset
+must match those bytes; the workflow never replaces it.
+
+The test registry uses a local archive URL. The published template uses the stable release asset URL,
+which keeps its checksum fixed even if GitHub regenerates its automatic tag archives. Release
+publishing requires the CI artifact to remain available; rerun CI for the release commit if it expires.
