@@ -102,10 +102,11 @@ may need adjustment. Setting `checkerboard = false` selects a white background; 
 Add the published release to your `MODULE.bazel` file:
 
 ```python
-bazel_dep(name = "pixelmatch-cpp17", version = "1.0.3")
+bazel_dep(name = "pixelmatch-cpp17", version = "2.0.0")
 ```
 
-Version 1.0.3 does not include the unreleased comparison changes described above.
+Version 2.0.0 includes the comparison changes described above. Registry versions become available
+after their BCR pull request is merged.
 For repository builds, use the Bazel version pinned in [`.bazelversion`](.bazelversion).
 
 ### CMake
@@ -146,3 +147,24 @@ and branch coverage** across the library implementation and the C++17 span polyf
 ## Projects using pixelmatch-cpp17
 
 - [Python bindings](https://github.com/cubao/pybind11_pixelmatch)
+
+## Publishing to the Bazel Central Registry
+
+Stable GitHub releases automatically open an update in the
+[Bazel Central Registry](https://registry.bazel.build/modules/pixelmatch-cpp17), using the
+release templates in [`.bcr`](.bcr) and the pinned [publishing workflow](.github/workflows/publish-bcr.yml).
+The workflow requires a repository secret named `BCR_PUBLISH_TOKEN` with access to the
+`jwmcglynn/bazel-central-registry` fork and permission to open a BCR pull request.
+Registry publication completes after BCR's checks and review.
+
+Before publishing a release, update the version in `MODULE.bazel`, `CMakeLists.txt`, the downstream
+[consumer module](examples/bazel_consumer/MODULE.bazel), and this README. Merge the change to main
+and wait for CI and coverage to pass before publishing its `vX.Y.Z` release. The BCR workflow verifies
+that the release is published, stable, from main, and version-consistent with successful CI.
+
+The workflow can be dispatched manually for an existing release if needed. It refuses to replace
+an existing submission branch in the registry fork; inspect that branch or PR before recovering a
+partially completed submission. Creating a tag alone does not submit anything to BCR.
+
+CI generates a registry entry from the source archive and tests it as a separate C++17/C++20 consumer.
+The test registry uses a local archive URL; the published template always uses the GitHub release tag.

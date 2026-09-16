@@ -3,13 +3,13 @@ A C++17 port of the JavaScript pixelmatch library, providing a small pixel-level
 
 To use, add the following to your MODULE.bazel file:
 ```
-bazel_dep(name = "pixelmatch-cpp17", version = "1.0.3")
+bazel_dep(name = "pixelmatch-cpp17", version = "2.0.0")
 ```
 """
 
 module(
     name = "pixelmatch-cpp17",
-    version = "1.0.3",
+    version = "2.0.0",
     compatibility_level = 0,
 )
 

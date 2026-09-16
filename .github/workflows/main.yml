@@ -11,8 +11,12 @@ on:
     inputs:
       debug_enabled:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        type: boolean
         required: false
         default: false
+
+permissions:
+  contents: read
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -48,7 +52,7 @@ jobs:
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
-      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
       with:
         limit-access-to-actor: true
 
@@ -80,3 +84,71 @@ jobs:
         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DPIXELMATCH_BUILD_TESTS=ON
         cmake --build build
         ctest --test-dir build --output-on-failure
+
+    - name: Prepare source archive for the BCR consumer test
+      id: bcr-version
+      run: |
+        version=$(sed -n 's/^    version = "\([^"]*\)",$/\1/p' MODULE.bazel)
+        [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+        grep --fixed-strings --line-regexp \
+          "bazel_dep(name = \"pixelmatch-cpp17\", version = \"${version}\")" \
+          examples/bazel_consumer/MODULE.bazel
+        mkdir -p "$RUNNER_TEMP/bcr-artifacts"
+        git archive --format=tar --prefix="pixelmatch-cpp17-${version}/" HEAD | \
+          gzip -n > "$RUNNER_TEMP/bcr-artifacts/v${version}.tar.gz"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout the registry metadata
+      uses: actions/checkout@v7
+      with:
+        repository: bazelbuild/bazel-central-registry
+        path: bcr-test-registry
+        sparse-checkout: |
+          /bazel_registry.json
+          /modules/pixelmatch-cpp17/metadata.json
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
+    - name: Isolate the candidate version in the disposable test registry
+      env:
+        VERSION: ${{ steps.bcr-version.outputs.version }}
+      run: |
+        metadata=bcr-test-registry/modules/pixelmatch-cpp17/metadata.json
+        jq --arg version "$VERSION" \
+          '.versions |= map(select(. != $version)) | del(.yanked_versions[$version])' \
+          "$metadata" > "${metadata}.test"
+        mv "${metadata}.test" "$metadata"
+
+    - name: Generate the BCR entry without publishing
+      # Same entry generator used by the pinned publish-to-bcr v1.5.0 workflow.
+      uses: bazel-contrib/publish-to-bcr@f9cfe7aca4256bb57b9d96648ce408c77593665b
+      with:
+        tag: v${{ steps.bcr-version.outputs.version }}
+        module-version: ${{ steps.bcr-version.outputs.version }}
+        module-roots: .
+        templates-dir: .bcr
+        local-registry: bcr-test-registry
+        local-artifact-path: ${{ runner.temp }}/bcr-artifacts
+        attest: false
+
+    - name: Use the local archive only in the test registry
+      env:
+        VERSION: ${{ steps.bcr-version.outputs.version }}
+      run: |
+        source="bcr-test-registry/modules/pixelmatch-cpp17/${VERSION}/source.json"
+        jq --arg url "file://${RUNNER_TEMP}/bcr-artifacts/v${VERSION}.tar.gz" \
+          '.url = $url' "$source" > "${source}.local"
+        mv "${source}.local" "$source"
+
+    - name: Test the BCR archive as a downstream dependency
+      run: |
+        export USE_BAZEL_VERSION
+        USE_BAZEL_VERSION=$(cat .bazelversion)
+        cd examples/bazel_consumer
+        for standard in c++17 c++20; do
+          "$GITHUB_WORKSPACE/bin/bazel" test --lockfile_mode=off \
+            --registry="file://${GITHUB_WORKSPACE}/bcr-test-registry" \
+            --registry=https://bcr.bazel.build \
+            --cxxopt="-std=${standard}" --host_cxxopt="-std=${standard}" \
+            //:consumer_test
+        done
