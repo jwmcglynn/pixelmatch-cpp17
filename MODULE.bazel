@@ -10,7 +10,7 @@ bazel_dep(name = "pixelmatch-cpp17", version = "2.0.0")
 module(
     name = "pixelmatch-cpp17",
     version = "2.0.0",
-    compatibility_level = 0,
+    compatibility_level = 1,
 )
 
 #
