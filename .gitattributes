@@ -1,0 +1,2 @@
+# A tracked Bazel convenience symlink is not part of a portable source release.
+/external export-ignore

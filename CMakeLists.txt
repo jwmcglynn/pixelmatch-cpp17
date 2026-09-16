@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(pixelmatch-cpp17 LANGUAGES CXX)
+project(pixelmatch-cpp17 VERSION 2.0.0 LANGUAGES CXX)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)

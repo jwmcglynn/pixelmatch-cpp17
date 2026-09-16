@@ -1,0 +1,82 @@
+name: Publish to BCR
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Existing published release tag, for example v2.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: bcr-${{ github.event.release.tag_name || inputs.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.repository == 'jwmcglynn/pixelmatch-cpp17'
+    runs-on: ubuntu-24.04
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Validate release tag
+        run: |
+          [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" \
+            --json tagName,isDraft,isPrerelease > release.json
+          jq --exit-status --arg tag "$TAG_NAME" \
+            '.tagName == $tag and .isDraft == false and .isPrerelease == false' release.json
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require verified release source from main
+        run: |
+          git merge-base --is-ancestor HEAD origin/main
+          version="${TAG_NAME#v}"
+          grep --fixed-strings --line-regexp "    version = \"${version}\"," MODULE.bazel
+          grep --fixed-strings --line-regexp \
+            "project(pixelmatch-cpp17 VERSION ${version} LANGUAGES CXX)" CMakeLists.txt
+          gh run list --repo "$GITHUB_REPOSITORY" --branch main --event push \
+            --commit "$(git rev-parse HEAD)" --limit 30 \
+            --json name,status,conclusion > runs.json
+          jq --exit-status '
+            ([.[] | select(.name == "CI")][0] |
+              .status == "completed" and .conclusion == "success") and
+            ([.[] | select(.name == "Coverage")][0] |
+              .status == "completed" and .conclusion == "success")
+          ' runs.json
+
+      - name: Preserve any existing registry submission branch
+        run: |
+          branch="pixelmatch-cpp17-${TAG_NAME}"
+          gh api "repos/jwmcglynn/bazel-central-registry/git/matching-refs/heads/${branch}" \
+            > refs.json
+          jq --exit-status --arg ref "refs/heads/${branch}" \
+            'all(.[]; .ref != $ref)' refs.json
+
+  publish:
+    needs: validate
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@ca23149e55cd4db07a6bcce69c02dea314c5a357 # v1.5.0
+    with:
+      tag_name: ${{ github.event.release.tag_name || inputs.tag_name }}
+      registry_fork: jwmcglynn/bazel-central-registry
+      module_roots: .
+      attest: false
+      download_default_release_artifacts: false
+      open_pull_request: true
+      draft: false
+      author_name: Jeff McGlynn
+      author_email: jeff@mcglynn.dev
+    secrets:
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
