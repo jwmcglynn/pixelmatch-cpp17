@@ -95,7 +95,7 @@ jobs:
           examples/bazel_consumer/MODULE.bazel
         mkdir -p "$RUNNER_TEMP/bcr-artifacts"
         git archive --format=tar --prefix="pixelmatch-cpp17-${version}/" HEAD | \
-          gzip -n > "$RUNNER_TEMP/bcr-artifacts/v${version}.tar.gz"
+          gzip -n > "$RUNNER_TEMP/bcr-artifacts/pixelmatch-cpp17-${version}.tar.gz"
         echo "version=$version" >> "$GITHUB_OUTPUT"
 
     - name: Checkout the registry metadata
@@ -136,7 +136,7 @@ jobs:
         VERSION: ${{ steps.bcr-version.outputs.version }}
       run: |
         source="bcr-test-registry/modules/pixelmatch-cpp17/${VERSION}/source.json"
-        jq --arg url "file://${RUNNER_TEMP}/bcr-artifacts/v${VERSION}.tar.gz" \
+        jq --arg url "file://${RUNNER_TEMP}/bcr-artifacts/pixelmatch-cpp17-${VERSION}.tar.gz" \
           '.url = $url' "$source" > "${source}.local"
         mv "${source}.local" "$source"
 
@@ -152,3 +152,11 @@ jobs:
             --cxxopt="-std=${standard}" --host_cxxopt="-std=${standard}" \
             //:consumer_test
         done
+
+    - name: Preserve the tested release source archive
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: bcr-release-source-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/bcr-artifacts/pixelmatch-cpp17-${{ steps.bcr-version.outputs.version }}.tar.gz
+        if-no-files-found: error
+        compression-level: 0
