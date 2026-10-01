@@ -21,7 +21,7 @@ concurrency:
 jobs:
   validate:
     if: github.repository == 'jwmcglynn/pixelmatch-cpp17'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       ci_run_id: ${{ steps.release-ci.outputs.run_id }}
       ci_artifact: ${{ steps.release-ci.outputs.artifact }}
@@ -79,7 +79,7 @@ jobs:
 
   upload-source:
     needs: validate
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
       actions: read
